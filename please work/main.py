@@ -11,20 +11,29 @@ run = True
 screen = pg.display.set_mode((600, 600))
 coin_fish_count = 0
 red_fish_count = 0
-clam_count = 0
-pearl_count = 0
-gold_fish_count = 0
+clam_count = 1
+pearl_count = 1
+gold_fish_count = 1
+
+mission_red_count = 15
 font3 = pg.font.SysFont("None", 50)
 game_over_text = font3.render(f"Вы прошли игру,", False, 'white')
 game_over_text2 = font3.render(f"Поздравляем!", False, 'white')
 font = pg.font.SysFont("None", 35)
 
+endless_game = font.render(f"(Бесконечная игра)", False, 'white')
+
 shop_text_fish_pole = font.render(f"Бесплатно", False, 'white')
 
 shop_text_pearl = font.render(f"5 монет за 1", False, 'white')
 skip_tutorial = font.render(f"Esc + Space, чтобы пропустить туториал", False, 'white')
+
 work_bench_text1 = font.render(f"Верстак", False, 'white')
 work_bench_text2 = font.render(f"Верстак", False, 'black')
+
+missions_text1 = font.render(f"Миссии", False, 'white')
+missions_text2 = font.render(f"Мисcии", False, 'black')
+
 shop_text_fish_line = font.render(f"10 монет", False, 'white')
 work_bench_ring_text2 = font.render(f"5 монет", False, 'white')
 shop_text_red_fish = font.render(f"Продать 1", False, 'white')
@@ -34,6 +43,10 @@ fish_bait_text = font2.render(f"Рыба двигается быстрее", Fal
 fish_pole_text = font2.render(f"Позволяет рыбачить", False, 'white')
 fish_line_text = font2.render(f"Рыба больше не уплывает", False, 'white')
 loot_magnet_text = font2.render(f"Притягвает редких рыб", False, 'white')
+
+discount_card_text = font2.render(f"Всё в магазине 50% дешевле", False, 'white')
+ring_text = font2.render(f"Рыбы стали в 5 раз прибыльнее", False, 'white')
+lucky_coin_ring_text = font2.render(f"Вы становитесь самым богатым и открываете миссии", False, 'white')
 
 work_bench_discount_card_text1 = font2.render(f"1 Жемчужина", False, 'white')
 work_bench_ring_text1 = font2.render(f"10 Жемчужин", False, 'white')
@@ -86,8 +99,9 @@ background_mix2 = pg.transform.scale(pg.image.load("tile_ground_mix2_new.png").c
 water_much_background = pg.transform.scale(pg.image.load("much_Water.png").convert(), (350, 150))
 background_Shop = pg.transform.scale(pg.image.load("tile_shop.png").convert(), (100, 50))
 crafting_bench = pg.transform.scale(pg.image.load("workbench.png").convert(), (50, 50))
-missions_sign = pg.transform.scale(pg.image.load("Sign.png").convert(), (150, 150))
 
+missions_sign = pg.transform.scale(pg.image.load("sign.png").convert(), (40, 40))
+missions_sign_rect = pg.Rect((500, 250, 540, 290))
 shop_menu = pg.transform.scale(pg.image.load("shop_menu.png").convert(), (150, 600))
 shop_red_fish = pg.transform.scale(pg.image.load(f"fishes/red/red_fish_1.png"), (100, 100))
 shop_fishing_line = pg.transform.scale(pg.image.load(f"fishing_line.png"), (100, 100))
@@ -107,9 +121,11 @@ discount_card_small = pg.transform.scale(pg.image.load(f"discount card.png"), (5
 
 lucky_coin = pg.transform.scale(pg.image.load(f"Lucky_Coin.png"), (50, 50))
 
-
 coin_ring = pg.transform.scale(pg.image.load(f"Coin_Ring.png"), (130, 80))
 coin_ring_small = pg.transform.scale(pg.image.load(f"Coin_Ring.png"), (50, 50))
+
+endless_crown = pg.transform.scale(pg.image.load(f"img.png"), (50, 30))
+endless_crown_rect = pg.Rect((50, 0, 80, 30))
 
 fishing_menu = pg.transform.scale(pg.image.load("fishing_menu_new.png").convert(), (600, 100))
 fishing_pole = pg.transform.scale(pg.image.load("Fish-rod.png").convert(), (100, 100))
@@ -117,18 +133,22 @@ fishing_pole_small = pg.transform.scale(pg.image.load("Fish-rod.png").convert(),
 fish_arrow = pg.transform.scale(pg.image.load("arrow_fish_menu.png").convert(), (50, 50))
 
 clam_1 = pg.transform.scale(pg.image.load(f"fishes/clam/Background.png"), (50, 50))
+clam_small = pg.transform.scale(pg.image.load(f"fishes/clam/Background.png"), (25, 25))
 clam_2 = pg.transform.scale(pg.image.load(f"fishes/clam/Слой 1.png"), (50, 50))
 clam_3 = pg.transform.scale(pg.image.load(f"fishes/clam/Слой 2.png"), (50, 50))
 clam_pearl = pg.transform.scale(pg.image.load(f"fishes/clam/Слой 3.png"), (100, 100))
+clam_pearl_small = pg.transform.scale(pg.image.load(f"fishes/clam/Слой 3.png"), (25, 25))
 clam_ = [clam_1, clam_2, clam_3]
 
 red_fish_1 = pg.transform.scale(pg.image.load(f"fishes/red/red_fish_1.png"), (50, 50))
+red_fish_small = pg.transform.scale(pg.image.load(f"fishes/red/red_fish_1.png"), (25, 25))
 red_fish_2 = pg.transform.scale(pg.image.load(f"fishes/red/red_fish_2.png"), (50, 50))
 red_fish_3 = pg.transform.scale(pg.image.load(f"fishes/red/red_fish_3.png"), (50, 50))
 red_fish_4 = pg.transform.scale(pg.image.load(f"fishes/red/red_fish_4.png"), (50, 50))
 red_fish_ = [red_fish_1, red_fish_2, red_fish_3, red_fish_4]
 
 coin_fish_1 = pg.transform.scale(pg.image.load(f"fishes/coin/Слой 1.png"), (50, 50))
+coin_fish_small = pg.transform.scale(pg.image.load(f"fishes/coin/Слой 1.png"), (25, 25))
 coin_fish_2 = pg.transform.scale(pg.image.load(f"fishes/coin/Слой 2.png"), (50, 50))
 coin_fish_3 = pg.transform.scale(pg.image.load(f"fishes/coin/Слой 3.png"), (50, 50))
 coin_fish_4 = pg.transform.scale(pg.image.load(f"fishes/coin/Слой 4.png"), (50, 50))
@@ -139,6 +159,7 @@ coin_fish_8 = pg.transform.scale(pg.image.load(f"fishes/coin/Слой 8.png"), (
 coin_fish_ = [coin_fish_1, coin_fish_2, coin_fish_3, coin_fish_4, coin_fish_5, coin_fish_6, coin_fish_7, coin_fish_8]
 
 gold_fish = pg.transform.scale(pg.image.load(f"fishes/gold fish.png"), (50, 50))
+gold_fish_small = pg.transform.scale(pg.image.load(f"fishes/gold fish.png"), (25, 25))
 shop_rect = pg.Rect((250, 50, 350, 100))
 shop_surf = pg.Surface((100, 20))
 shop_rect = shop_surf.get_rect(topleft=(250, 30))
@@ -170,10 +191,11 @@ pg.display.update()
 shop_state = 'none'
 open_shop_menu = False
 open_craft_menu = False
+open_missions_menu = False
 fishing_pole_bought = False  # remove
-fishing_line_bought = False
-fish_bait_bought = False
-loot_magnet_bought = False
+fishing_line_bought = True
+fish_bait_bought = True
+loot_magnet_bought = True
 discount_card_crafted = True
 ring_crafted = True
 pearl_bought = True
@@ -182,6 +204,7 @@ lucky_coin_ring_crafted = True
 fishing_state = True
 is_tutorial = True
 game_over = False
+continue_ = False
 tutorial_state = '1'
 entity1 = Entity(x, y)
 fish1 = Fish(-50, 350, gold_fish, 1.5)
@@ -203,6 +226,9 @@ while run:
     fish_list_3 = font2.render(f"Моллюск x{clam_count}", False, 'purple')
     fish_list_3_1 = font2.render(f"Жемчужина x{pearl_count}", False, 'purple')
     fish_list_4 = font2.render(f"Золотая Рыбка x{gold_fish_count}", False, 'purple')
+
+    mission1_text = font2.render(f"Поймайте {mission_red_count}", False, 'white')
+
     screen.blit(background_mix2, (0, 400))
     screen.blit(background_mix2, (0, 300))
     screen.blit(background_mix2, (0, 150))
@@ -235,14 +261,15 @@ while run:
     if loot_magnet_bought:
         screen.blit(shop_loot_magnet_small, (370, 540))
     if discount_card_crafted:
-        screen.blit(discount_card_small, (340, 540))
+        screen.blit(discount_card_small, (320, 540))
     if ring_crafted:
-        screen.blit(ring_small, (280, 540))
+        if not lucky_coin_ring_crafted:
+            screen.blit(ring_small, (265, 540))
     if lucky_coin_fished:
         if not lucky_coin_ring_crafted:
-        screen.blit(lucky_coin, (220, 540))
+            screen.blit(lucky_coin, (210, 540))
     if lucky_coin_ring_crafted:
-        screen.blit(coin_ring_small, (170, 540))
+        screen.blit(coin_ring_small, ((265, 540)))
     if discount_card_crafted:
         shop_text_fish_bait = font.render(f"8 монет", False, 'white')
         shop_text_loot_magnet = font.render(f"10 монет", False, 'white')
@@ -346,6 +373,9 @@ while run:
         if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and is_tutorial and tutorial_state == '5.2':
             print('Туториал окончен!')
             is_tutorial = False
+        if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and game_over:
+            continue_ = True
+            game_over = False
         if event.type == pg.KEYDOWN and event.key == pg.K_SPACE and entity1.rect.y >= 465:
             if is_tutorial:
                 fish_point_color = 'black'
@@ -364,15 +394,7 @@ while run:
         entity1.move_right()
     if keys[pg.K_a] and not game_over:
         entity1.move_left()
-    if (keys[pg.K_LSHIFT] or keys[pg.K_TAB]) and tutorial_state != '1' and not game_over:
-        screen.blit(fish_list_1, (400, 150))
-        screen.blit(fish_list_2, (400, 170))
-        if clam_count != 0:
-            screen.blit(fish_list_3, (400, 190))
-        if gold_fish_count != 0:
-            screen.blit(fish_list_4, (400, 230))
-        if pearl_count != 0:
-            screen.blit(fish_list_3_1, (400, 210))
+
     if entity1.rect.y >= 465:
         entity1.rect.y = 465
     if entity1.rect.y < 0:
@@ -628,18 +650,27 @@ while run:
             screen.blit(discount_card, (10, 20))
             screen.blit(work_bench_discount_card_text1, (5, 100))
             screen.blit(work_bench_ring_text2, (5, 120))
+            if mouse_rect.colliderect(discount_card_rect):
+                screen.blit(discount_card_text, (130, 20))
 
         if not ring_crafted:
             screen.blit(ring, (6.5, 150))
             screen.blit(work_bench_ring_text1, (5, 235))
             screen.blit(work_bench_ring_text2, (5, 255))
+            if mouse_rect.colliderect(ring_rect):
+                screen.blit(ring_text, (130, 150))
 
         if ring_crafted and lucky_coin_fished and not lucky_coin_ring_crafted:
             screen.blit(coin_ring, (10, 350))
             screen.blit(work_bench_lucky_coin_ring_text1, (10, 440))
             screen.blit(work_bench_coin_ring_text2, (10, 460))
             screen.blit(work_bench_coin_ring_text3, (10, 480))
-
+            if mouse_rect.colliderect(lucky_coin_ring_rect):
+                screen.blit(lucky_coin_ring_text, (0, 330))
+    if open_missions_menu:
+        screen.blit(shop_menu, (0, 0))
+        screen.blit(mission1_text, (5, 50))
+        screen.blit(red_fish_small, (125, 50))
     if is_tutorial:
         screen.blit(skip_tutorial, (20, 580))
 
@@ -727,12 +758,7 @@ while run:
 
     if pearl_bought:
         screen.blit(crafting_bench_surf, (450, 50))
-        screen.blit(crafting_bench, (450, 50))
-        screen.blit(work_bench_text1, (433, 20))
-        screen.blit(work_bench_text2, (430, 23))
-
-    if lucky_coin_ring_crafted:
-        game_over = True
+        screen.blit(crafting_bench, (450, 50))\
 
     if game_over:
         screen.blit(game_over_text, (150, 300))
@@ -741,8 +767,45 @@ while run:
         entity1.rect.y = 350
         if keys[pg.K_ESCAPE]:
             run = False
+    if lucky_coin_ring_crafted:
+        if not continue_:
+            game_over = True
+        else:
+            game_over = False
+            screen.blit(missions_sign, (500, 250))
     all_sprite.draw(screen)
     all_sprite.update()
+    if pearl_bought:
+        screen.blit(work_bench_text1, (433, 20))
+        screen.blit(work_bench_text2, (430, 23))
+    if (keys[pg.K_LSHIFT] or keys[pg.K_TAB]) and tutorial_state != '1' and not game_over:
+        screen.blit(fish_list_1, (400, 130))
+        screen.blit(red_fish_small, (370, 120))
+        screen.blit(fish_list_2, (400, 150))
+        screen.blit(coin_fish_small, (370, 145))
+        if clam_count != 0:
+            screen.blit(fish_list_3, (400, 170))
+            screen.blit(clam_small, (370, 168))
+        if gold_fish_count != 0:
+            screen.blit(fish_list_4, (400, 210))
+            screen.blit(gold_fish_small, (370, 210))
+        if pearl_count != 0:
+            screen.blit(fish_list_3_1, (400, 190))
+            screen.blit(clam_pearl_small, (370, 190))
+    if lucky_coin_ring_crafted:
+        if not continue_:
+            game_over = True
+        else:
+            game_over = False
+            screen.blit(endless_crown, (50, 5))
+            if mouse_rect.colliderect(endless_crown_rect):
+                screen.blit(endless_game, (100, 5))
 
+            screen.blit(missions_text1, (490, 228))
+            screen.blit(missions_text2, (488, 230))
+            if entity1.rect.colliderect(missions_sign_rect):
+                open_missions_menu = True
+            else:
+                open_missions_menu = False
     pg.display.update()
 pg.quit()
