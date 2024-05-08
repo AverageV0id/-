@@ -2,7 +2,7 @@ import pygame as pg
 import random
 from entity import Entity
 from fish import Fish
-
+from progress_bar import HealthBar
 pg.init()
 pg.font.init()
 pg.mixer.init()
@@ -11,6 +11,7 @@ run = True
 screen = pg.display.set_mode((600, 600))
 coin_fish_count = 0
 red_fish_count = 0
+total_red_fish_count = 0
 clam_count = 1
 pearl_count = 1
 gold_fish_count = 1
@@ -38,6 +39,9 @@ shop_text_fish_line = font.render(f"10 монет", False, 'white')
 work_bench_ring_text2 = font.render(f"5 монет", False, 'white')
 shop_text_red_fish = font.render(f"Продать 1", False, 'white')
 font2 = pg.font.SysFont("None", 30)
+
+mission_text1 = font2.render(f"Не готово", False, 'white')
+mission_text2 = font2.render(f"Готово", False, 'white')
 
 fish_bait_text = font2.render(f"Рыба двигается быстрее", False, 'white')
 fish_pole_text = font2.render(f"Позволяет рыбачить", False, 'white')
@@ -185,6 +189,10 @@ fish_point_rect = pg.Rect((300, 400, 300, 450))
 fish_point_surf = pg.Surface((50, 100))
 fish_point_rect = fishing_point_surf.get_rect(topleft=(270, 300))
 
+ready_red_rect = pg.Rect((40, 100, 60, 110))
+ready_red_surf = pg.Surface((70, 20))
+ready_red_rect = ready_red_surf.get_rect(topleft=(40, 100))
+
 x = 300
 y = 600 // 2
 pg.display.update()
@@ -208,7 +216,7 @@ continue_ = False
 tutorial_state = '1'
 entity1 = Entity(x, y)
 fish1 = Fish(-50, 350, gold_fish, 1.5)
-
+red_fish_mission = HealthBar(10, 80, 60)
 fish_point_color = 'green'
 all_sprite = pg.sprite.Group(entity1, fish1)
 grass_tile1_rect = pg.surface.Surface((50, 50))
@@ -216,7 +224,6 @@ while run:
     mouse_x, mouse_y = pg.mouse.get_pos()
     mouse_rect = pg.Surface((5, 5))
     mouse_rect = mouse_rect.get_rect(topleft=(mouse_x, mouse_y))
-
     clock.tick(60)
     entity1.stay_still()
     keys = pg.key.get_pressed()
@@ -251,7 +258,6 @@ while run:
     screen.blit(background, (450, 400))
     screen.blit(water_much_background, (0, 550))
     screen.blit(water_much_background, (350, 550))
-
     if fishing_pole_bought:
         screen.blit(fishing_pole_small, (530, 540))
     if fishing_line_bought:
@@ -373,6 +379,10 @@ while run:
         if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and is_tutorial and tutorial_state == '5.2':
             print('Туториал окончен!')
             is_tutorial = False
+        if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and open_missions_menu:
+            if ready_red_rect.collidepoint(event.pos):
+                mission_red_count += 5
+                red_fish_mission.width -= 25
         if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and game_over:
             continue_ = True
             game_over = False
@@ -531,6 +541,7 @@ while run:
 
                     if fish1.image == red_fish_1 or fish1.image == red_fish_2 or fish1.image == red_fish_3 or fish1.image == red_fish_4:
                         red_fish_count += 1
+                        total_red_fish_count += 1
                         fish_point_color = 'red'
                         fish_caught_sfx.play()
 
@@ -562,6 +573,8 @@ while run:
 
                 if fish1.image == red_fish_1 or fish1.image == red_fish_2 or fish1.image == red_fish_3 or fish1.image == red_fish_4:
                     red_fish_count += 1
+                    total_red_fish_count += 1
+                    red_fish_mission.width += 5
                     fish_caught_sfx.play()
 
                 if fish1.image == coin_fish_1 or fish1.image == coin_fish_2 or fish1.image == coin_fish_3 or fish1.image == coin_fish_4 or fish1.image == coin_fish_5 or fish1.image == coin_fish_6 or fish1.image == coin_fish_7 or fish1.image == coin_fish_8:
@@ -671,6 +684,14 @@ while run:
         screen.blit(shop_menu, (0, 0))
         screen.blit(mission1_text, (5, 50))
         screen.blit(red_fish_small, (125, 50))
+        if total_red_fish_count < mission_red_count:
+            screen.blit(mission_text1, (27, 100))
+        else:
+            screen.blit(mission_text2, (40, 100))
+        red_fish_mission.update()
+        all_sprite.add(red_fish_mission)
+    else:
+        all_sprite.remove(red_fish_mission)
     if is_tutorial:
         screen.blit(skip_tutorial, (20, 580))
 
