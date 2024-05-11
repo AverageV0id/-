@@ -16,3 +16,6 @@ class Fish(pg.sprite.Sprite):
         frame_index = (current_time // frame_duration) % 2
         if frame_index == 1:
             self.rect.x += self.speed
+
+    def lava_fish_update(self):
+        self.rect.x += self.speed

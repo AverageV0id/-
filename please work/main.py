@@ -3,22 +3,31 @@ import random
 from entity import Entity
 from fish import Fish
 from progress_bar import HealthBar
+
 pg.init()
 pg.font.init()
 pg.mixer.init()
 clock = pg.time.Clock()
 run = True
 screen = pg.display.set_mode((600, 600))
+
 coin_fish_count = 0
 red_fish_count = 0
-total_red_fish_count = 30
-total_gold_fish_count = 30
+
+total_red_fish_count = 25
+total_gold_fish_count = 25
+total_clam_count = 25
 clam_count = 1
 pearl_count = 1
 gold_fish_count = 0
 
 mission_red_count = 15
 mission_gold_fish_count = 15
+mission_clam_count = 15
+
+lava_fish_count = 0
+obsidian_fish_count = 0
+lava_jellyfish_count = 0
 font3 = pg.font.SysFont("None", 50)
 game_over_text = font3.render(f"Вы прошли игру,", False, 'white')
 game_over_text2 = font3.render(f"Поздравляем!", False, 'white')
@@ -104,8 +113,19 @@ background = pg.transform.scale(pg.image.load("tile_ground_between_mix.png").con
 background_mix = pg.transform.scale(pg.image.load("tile_ground_new.png").convert(), (150, 150))
 background_mix2 = pg.transform.scale(pg.image.load("tile_ground_mix2_new.png").convert(), (150, 150))
 water_much_background = pg.transform.scale(pg.image.load("much_Water.png").convert(), (350, 150))
+lava_much_background = pg.transform.scale(pg.image.load("much_Lava.png").convert(), (350, 150))
 background_Shop = pg.transform.scale(pg.image.load("tile_shop.png").convert(), (100, 50))
 crafting_bench = pg.transform.scale(pg.image.load("workbench.png").convert(), (50, 50))
+
+volcano_left = pg.transform.scale(pg.image.load("volcano_side.png").convert(), (150, 150))
+volcano_upside = pg.transform.scale(pg.image.load("volcano_upside.png").convert(), (150, 150))
+volcano_up = pg.transform.scale(pg.image.load("volcano_up.png").convert(), (150, 150))
+volcano_upright = pg.transform.scale(pg.image.load("volcano_upleft.png").convert(), (150, 150))
+volcano_right = pg.transform.scale(pg.image.load("volcano_side2.png").convert(), (150, 150))
+volcano_mix = pg.transform.scale(pg.image.load("volcano_mix.png").convert(), (150, 150))
+volcano_down = pg.transform.scale(pg.image.load("volcano_down.png").convert(), (150, 150))
+volcano_downleft = pg.transform.scale(pg.image.load("volcano_downleft.png").convert(), (150, 150))
+volcano_downright = pg.transform.scale(pg.image.load("volcano_downright.png").convert(), (150, 150))
 
 missions_sign = pg.transform.scale(pg.image.load("sign.png").convert(), (40, 40))
 missions_sign_rect = pg.Rect((500, 250, 540, 290))
@@ -167,6 +187,11 @@ coin_fish_ = [coin_fish_1, coin_fish_2, coin_fish_3, coin_fish_4, coin_fish_5, c
 
 gold_fish = pg.transform.scale(pg.image.load(f"fishes/gold fish.png"), (50, 50))
 gold_fish_small = pg.transform.scale(pg.image.load(f"fishes/gold fish.png"), (25, 25))
+
+obsidian_fish = pg.transform.scale(pg.image.load(f"fishes/obsidian fish.png"), (50, 50))
+lava_fish = pg.transform.scale(pg.image.load(f"fishes/lava fish.png"), (50, 50))
+lava_jellyfish = pg.transform.scale(pg.image.load(f"fishes/lava_jellyfish.png"), (50, 50))
+
 shop_rect = pg.Rect((250, 50, 350, 100))
 shop_surf = pg.Surface((100, 20))
 shop_rect = shop_surf.get_rect(topleft=(250, 30))
@@ -199,6 +224,10 @@ ready_red_rect = ready_red_surf.get_rect(topleft=(40, 100))
 ready_gold_rect = pg.Rect((40, 200, 60, 210))
 ready_gold_surf = pg.Surface((70, 20))
 ready_gold_rect = ready_gold_surf.get_rect(topleft=(40, 200))
+
+ready_clam_rect = pg.Rect((40, 300, 60, 310))
+ready_clam_surf = pg.Surface((70, 20))
+ready_clam_rect = ready_clam_surf.get_rect(topleft=(40, 300))
 x = 300
 y = 600 // 2
 pg.display.update()
@@ -223,8 +252,9 @@ continue_ = False
 tutorial_state = '1'
 entity1 = Entity(x, y)
 fish1 = Fish(-50, 350, gold_fish, 1.5)
-red_fish_mission = HealthBar(10, 80, 60)
-gold_fish_mission = HealthBar(10, 180, 60)
+red_fish_mission = HealthBar(35, 80, 80)
+gold_fish_mission = HealthBar(35, 180, 80)
+clam_mission = HealthBar(35, 280, 80)
 fish_point_color = 'green'
 all_sprite = pg.sprite.Group(entity1, fish1)
 grass_tile1_rect = pg.surface.Surface((50, 50))
@@ -235,9 +265,8 @@ while run:
     clock.tick(60)
     entity1.stay_still()
     keys = pg.key.get_pressed()
+    screen.fill('black')
     if stage == 1:
-
-        screen.fill('black')
         if mission_red_count == 30:
             red_mission_tier = font.render(f"+", False, 'gray')
         elif mission_red_count == 25:
@@ -256,15 +285,32 @@ while run:
         elif mission_gold_fish_count == 15:
             gold_fish_mission_tier = font2.render(f"I", False, 'yellow')
 
+        if mission_clam_count == 30:
+            clam_mission_tier = font.render(f"+", False, 'gray')
+        elif mission_clam_count == 25:
+            clam_mission_tier = font2.render(f"III", False, 'yellow')
+        elif mission_clam_count == 20:
+            clam_mission_tier = font2.render(f"II", False, 'yellow')
+        elif mission_clam_count == 15:
+            clam_mission_tier = font2.render(f"I", False, 'yellow')
+
         fish_list_1 = font2.render(f"Красная рыба x{red_fish_count}", False, 'purple')
         fish_list_2 = font2.render(f"Монета x{coin_fish_count}", False, 'purple')
         fish_list_3 = font2.render(f"Моллюск x{clam_count}", False, 'purple')
         fish_list_3_1 = font2.render(f"Жемчужина x{pearl_count}", False, 'purple')
         fish_list_4 = font2.render(f"Золотая Рыбка x{gold_fish_count}", False, 'purple')
-
-        mission1_text = font2.render(f"Поймайте {mission_red_count}", False, 'white')
-        mission2_text = font2.render(f"Поймайте {mission_gold_fish_count}", False, 'white')
-
+        if mission_red_count == 30:
+            mission1_text = font2.render(f"Поймайте 25", False, 'white')
+        else:
+            mission1_text = font2.render(f"Поймайте {mission_red_count}", False, 'white')
+        if mission_gold_fish_count == 30:
+            mission2_text = font2.render(f"Поймайте 25", False, 'white')
+        else:
+            mission2_text = font2.render(f"Поймайте {mission_gold_fish_count}", False, 'white')
+        if mission_clam_count == 30:
+            mission3_text = font2.render(f"Поймайте 25", False, 'white')
+        else:
+            mission3_text = font2.render(f"Поймайте {mission_clam_count}", False, 'white')
         screen.blit(background_mix2, (0, 400))
         screen.blit(background_mix2, (0, 300))
         screen.blit(background_mix2, (0, 150))
@@ -287,6 +333,50 @@ while run:
         screen.blit(background, (450, 400))
         screen.blit(water_much_background, (0, 550))
         screen.blit(water_much_background, (350, 550))
+        if entity1.rect.y >= 465:
+            entity1.rect.y = 465
+        if entity1.rect.y < 0:
+            entity1.rect.y = 0
+        if entity1.rect.x < 0:
+            entity1.rect.x = 0
+        if entity1.rect.x > 560:
+            entity1.rect.x = 560
+    elif stage == 2:
+
+        lava_fish_text = font2.render(f"Лавовая рыба x{lava_fish_count}", False, 'purple')
+        obsidian_fish_text = font2.render(f"Обсидиановая рыба x{obsidian_fish_count}", False, 'purple')
+        lava_jellyfish_count = font2.render(f"Моллюск x{clam_count}", False, 'purple') .....
+
+        screen.blit(volcano_left, (0, 300))
+        screen.blit(volcano_left, (0, 150))
+        screen.blit(volcano_upside, (0, 0))
+
+        screen.blit(volcano_mix, (150, 300))
+        screen.blit(volcano_mix, (150, 150))
+        screen.blit(volcano_up, (150, 0))
+
+        screen.blit(volcano_mix, (300, 300))
+        screen.blit(volcano_mix, (300, 150))
+        screen.blit(volcano_up, (300, 0))
+        screen.blit(volcano_right, (450, 300))
+        screen.blit(volcano_right, (450, 150))
+        screen.blit(volcano_upright, (450, 0))
+
+        screen.blit(volcano_downleft, (0, 400))
+        screen.blit(volcano_down, (150, 400))
+        screen.blit(volcano_down, (300, 400))
+        screen.blit(volcano_downright, (450, 400))
+
+        screen.blit(lava_much_background, (0, 550))
+        screen.blit(lava_much_background, (350, 550))
+        if entity1.rect.y >= 495:
+            entity1.rect.y = 495
+        if entity1.rect.y < 0:
+            entity1.rect.y = 0
+        if entity1.rect.x < 0:
+            entity1.rect.x = 0
+        if entity1.rect.x > 560:
+            entity1.rect.x = 560
     if fishing_pole_bought:
         screen.blit(fishing_pole_small, (530, 540))
     if fishing_line_bought:
@@ -409,13 +499,17 @@ while run:
             print('Туториал окончен!')
             is_tutorial = False
         if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and open_missions_menu:
-            if ready_red_rect.collidepoint(event.pos) and 30 > mission_red_count < total_red_fish_count:
+            if ready_red_rect.collidepoint(event.pos) and 30 > mission_red_count <= total_red_fish_count:
                 mission_red_count += 5
                 red_fish_mission.width -= 25
         if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and open_missions_menu:
-            if ready_gold_rect.collidepoint(event.pos) and 30 > mission_gold_fish_count < total_gold_fish_count:
+            if ready_gold_rect.collidepoint(event.pos) and 30 > mission_gold_fish_count <= total_gold_fish_count:
                 mission_gold_fish_count += 5
                 gold_fish_mission.width -= 25
+        if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and open_missions_menu:
+            if ready_clam_rect.collidepoint(event.pos) and 30 > mission_clam_count <= total_clam_count:
+                mission_clam_count += 5
+                clam_mission.width -= 25
         if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and game_over:
             continue_ = True
             game_over = False
@@ -437,15 +531,6 @@ while run:
         entity1.move_right()
     if keys[pg.K_a] and not game_over:
         entity1.move_left()
-
-    if entity1.rect.y >= 465:
-        entity1.rect.y = 465
-    if entity1.rect.y < 0:
-        entity1.rect.y = 0
-    if entity1.rect.x < 0:
-        entity1.rect.x = 0
-    if entity1.rect.x > 560:
-        entity1.rect.x = 560
 
     if fish1.rect.x >= 620:
         fishing_state = False
@@ -487,58 +572,70 @@ while run:
             fish1.speed = 1
         else:
             fish1.speed = 0.5
+    if fish1.image == lava_fish:
+        fish1.speed = 9
+    if fish1.image == obsidian_fish:
+        fish1.speed = 7
+    if fish1.image == lava_jellyfish:
+        fish1.speed = 5
     if fish1.rect.x == -50:
-
-        if not loot_magnet_bought:
-            if is_tutorial:
-                fish1.image = red_fish_1
-
-            else:
-                if random.randint(1, 10) > 3:
+        if stage == 1:
+            if not loot_magnet_bought:
+                if is_tutorial:
                     fish1.image = red_fish_1
-                if random.randint(1, 10) == 3:
-                    fish1.image = clam_1
-                if random.randint(1, 10) < 4:
-                    fish1.image = coin_fish_1
-        else:
-            if ring_crafted:
-                if not lucky_coin_fished:
-                    if random.randint(1, 10) == 1:
-                        fish1.image = lucky_coin
-                    elif random.randint(1, 10) <= 3:
+
+                else:
+                    if random.randint(1, 10) > 3:
                         fish1.image = red_fish_1
+                    if random.randint(1, 10) == 3:
+                        fish1.image = clam_1
+                    if random.randint(1, 10) < 4:
+                        fish1.image = coin_fish_1
+            else:
+                if ring_crafted:
+                    if not lucky_coin_fished:
+                        if random.randint(1, 10) == 1:
+                            fish1.image = lucky_coin
+                        elif random.randint(1, 10) <= 3:
+                            fish1.image = red_fish_1
+                        elif random.randint(1, 10) <= 3:
+                            fish1.image = clam_1
+                        elif random.randint(1, 10) <= 5:
+                            fish1.image = coin_fish_1
+                        else:
+                            if not gold_fish_count > 15:
+                                fish1.image = gold_fish
+                    else:
+                        if random.randint(1, 10) <= 5 and not coin_fish_count > 150:
+                            fish1.image = red_fish_1
+
+                        elif random.randint(1,
+                                            10) > 5 and not clam_count > 50 and not pearl_count > 50 and not pearl_count + clam_count > 50:
+                            fish1.image = clam_1
+
+                        else:
+                            if not gold_fish_count > 15:
+                                fish1.image = gold_fish
+                else:
+                    if random.randint(1, 10) <= 3:
+                        fish1.image = red_fish_1
+
                     elif random.randint(1, 10) <= 3:
                         fish1.image = clam_1
+
                     elif random.randint(1, 10) <= 5:
                         fish1.image = coin_fish_1
-                    else:
-                        if not gold_fish_count > 15:
-                            fish1.image = gold_fish
-                else:
-                    if random.randint(1, 10) <= 5 and not coin_fish_count > 150:
-                        fish1.image = red_fish_1
-
-                    elif random.randint(1,
-                                        10) > 5 and not clam_count > 50 and not pearl_count > 50 and not pearl_count + clam_count > 50:
-                        fish1.image = clam_1
 
                     else:
                         if not gold_fish_count > 15:
                             fish1.image = gold_fish
+        elif stage == 2:
+            if random.randint(1, 20) < 5:
+                fish1.image = lava_fish
+            elif random.randint(1, 20) > 15:
+                fish1.image = obsidian_fish
             else:
-                if random.randint(1, 10) <= 3:
-                    fish1.image = red_fish_1
-
-                elif random.randint(1, 10) <= 3:
-                    fish1.image = clam_1
-
-                elif random.randint(1, 10) <= 5:
-                    fish1.image = coin_fish_1
-
-                else:
-                    if not gold_fish_count > 15:
-                        fish1.image = gold_fish
-        fish1.rect.y = 320
+                fish1.image = lava_jellyfish
         fish1.rect.x = -50
     if entity1.rect.y >= 465 and stage == 1:
 
@@ -556,7 +653,17 @@ while run:
 
             if frame_index == 2 and fish1.image == gold_fish:
                 fish1.fish_update()
+    elif entity1.rect.y >= 495 and stage == 2:
+        if fishing_pole_bought and fishing_state:
+            screen.blit(fishing_menu, (0, 300))
+            screen.blit(fish_arrow, (270, 390))
+            screen.blit(fish_point_surf, (270, 300))
+            fish_point_surf.fill(fish_point_color)
+            current_time = pg.time.get_ticks()
+            frame_duration = 300
+            frame_index = (current_time // frame_duration) % 2
 
+            fish1.lava_fish_update()
     else:
         fish1.rect.x = -50
     if fish1.rect.colliderect(fish_point_rect):
@@ -626,7 +733,12 @@ while run:
                     fish_caught_sfx.play()
                 if fish1.image == lucky_coin:
                     lucky_coin_fished = True
-
+                if fish1.image == lava_fish:
+                    lava_fish_count += 1
+                if fish1.image == obsidian_fish:
+                    obsidian_fish_count += 1
+                if fish1.image == lava_jellyfish:
+                    lava_jellyfish_count += 1
     if not fishing_point_rect.colliderect(entity1):
         fishing_state = True
 
@@ -733,15 +845,28 @@ while run:
         all_sprite.add(red_fish_mission)
         gold_fish_mission.update()
         all_sprite.add(gold_fish_mission)
-        if mission_gold_fish_count == 30:
+        clam_mission.update()
+        all_sprite.add(clam_mission)
+        if mission_gold_fish_count == 30 or gold_fish_mission_tier == font.render(f"+", False, 'gray'):
             screen.blit(mission_text_max, (27, 200))
         elif total_gold_fish_count < mission_gold_fish_count:
             screen.blit(mission_text1, (27, 200))
         else:
             screen.blit(mission_text2, (40, 200))
+        screen.blit(mission3_text, (5, 250))
+        screen.blit(clam_small, (125, 250))
+        screen.blit(clam_mission_tier, (135, 280))
+
+        if mission_clam_count == 30 or clam_mission_tier == font.render(f"+", False, 'gray'):
+            screen.blit(mission_text_max, (27, 300))
+        elif total_clam_count < mission_clam_count:
+            screen.blit(mission_text1, (27, 300))
+        else:
+            screen.blit(mission_text2, (40, 300))
     else:
         all_sprite.remove(red_fish_mission)
         all_sprite.remove(gold_fish_mission)
+        all_sprite.remove(clam_mission)
     if is_tutorial:
         screen.blit(skip_tutorial, (20, 580))
 
@@ -825,11 +950,12 @@ while run:
                 screen.blit(tutorial_end2, (70, 430))
                 screen.blit(tutorial_end3, (70, 450))
     else:
-        screen.blit(background_Shop, (250, 40))
+        if stage == 1:
+            screen.blit(background_Shop, (250, 40))
 
     if pearl_bought and stage == 1:
         screen.blit(crafting_bench_surf, (450, 50))
-        screen.blit(crafting_bench, (450, 50))\
+        screen.blit(crafting_bench, (450, 50))
 
     if game_over:
         screen.blit(game_over_text, (150, 300))
@@ -843,26 +969,30 @@ while run:
             game_over = True
         else:
             game_over = False
-            screen.blit(missions_sign, (500, 250))
+            if stage == 1:
+                screen.blit(missions_sign, (500, 250))
     all_sprite.draw(screen)
     all_sprite.update()
-    if pearl_bought:
+    if pearl_bought and stage == 1:
         screen.blit(work_bench_text1, (433, 20))
         screen.blit(work_bench_text2, (430, 23))
     if (keys[pg.K_LSHIFT] or keys[pg.K_TAB]) and tutorial_state != '1' and not game_over:
-        screen.blit(fish_list_1, (400, 130))
-        screen.blit(red_fish_small, (370, 120))
-        screen.blit(fish_list_2, (400, 150))
-        screen.blit(coin_fish_small, (370, 145))
-        if clam_count != 0:
-            screen.blit(fish_list_3, (400, 170))
-            screen.blit(clam_small, (370, 168))
-        if gold_fish_count != 0:
-            screen.blit(fish_list_4, (400, 210))
-            screen.blit(gold_fish_small, (370, 210))
-        if pearl_count != 0:
-            screen.blit(fish_list_3_1, (400, 190))
-            screen.blit(clam_pearl_small, (370, 190))
+        if stage == 1:
+            screen.blit(fish_list_1, (400, 130))
+            screen.blit(red_fish_small, (370, 120))
+            screen.blit(fish_list_2, (400, 150))
+            screen.blit(coin_fish_small, (370, 145))
+            if clam_count != 0:
+                screen.blit(fish_list_3, (400, 170))
+                screen.blit(clam_small, (370, 168))
+            if gold_fish_count != 0:
+                screen.blit(fish_list_4, (400, 210))
+                screen.blit(gold_fish_small, (370, 210))
+            if pearl_count != 0:
+                screen.blit(fish_list_3_1, (400, 190))
+                screen.blit(clam_pearl_small, (370, 190))
+        elif stage == 2:
+
     if lucky_coin_ring_crafted:
         if not continue_:
             game_over = True
@@ -871,12 +1001,21 @@ while run:
             screen.blit(endless_crown, (50, 5))
             if mouse_rect.colliderect(endless_crown_rect):
                 screen.blit(endless_game, (100, 5))
-
-            screen.blit(missions_text1, (490, 228))
-            screen.blit(missions_text2, (488, 230))
-            if entity1.rect.colliderect(missions_sign_rect):
+            if stage == 1:
+                screen.blit(missions_text1, (490, 228))
+                screen.blit(missions_text2, (488, 230))
+            if entity1.rect.colliderect(missions_sign_rect) and stage == 1:
                 open_missions_menu = True
             else:
                 open_missions_menu = False
+    if stage == 1 and mission_red_count == 30 and mission_gold_fish_count == 30 and mission_clam_count == 30:
+        if entity1.rect.x <= 0:
+            stage = 2
+            entity1.rect.x = 550
+    if stage == 2:
+        if entity1.rect.x > 550:
+            stage = 1
+            entity1.rect.x = 5
+
     pg.display.update()
 pg.quit()
