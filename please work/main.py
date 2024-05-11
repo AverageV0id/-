@@ -11,12 +11,14 @@ run = True
 screen = pg.display.set_mode((600, 600))
 coin_fish_count = 0
 red_fish_count = 0
-total_red_fish_count = 0
+total_red_fish_count = 30
+total_gold_fish_count = 30
 clam_count = 1
 pearl_count = 1
-gold_fish_count = 1
+gold_fish_count = 0
 
 mission_red_count = 15
+mission_gold_fish_count = 15
 font3 = pg.font.SysFont("None", 50)
 game_over_text = font3.render(f"Вы прошли игру,", False, 'white')
 game_over_text2 = font3.render(f"Поздравляем!", False, 'white')
@@ -42,6 +44,7 @@ font2 = pg.font.SysFont("None", 30)
 
 mission_text1 = font2.render(f"Не готово", False, 'white')
 mission_text2 = font2.render(f"Готово", False, 'white')
+mission_text_max = font2.render(f"Макс.", False, 'white')
 
 fish_bait_text = font2.render(f"Рыба двигается быстрее", False, 'white')
 fish_pole_text = font2.render(f"Позволяет рыбачить", False, 'white')
@@ -193,10 +196,14 @@ ready_red_rect = pg.Rect((40, 100, 60, 110))
 ready_red_surf = pg.Surface((70, 20))
 ready_red_rect = ready_red_surf.get_rect(topleft=(40, 100))
 
+ready_gold_rect = pg.Rect((40, 200, 60, 210))
+ready_gold_surf = pg.Surface((70, 20))
+ready_gold_rect = ready_gold_surf.get_rect(topleft=(40, 200))
 x = 300
 y = 600 // 2
 pg.display.update()
 shop_state = 'none'
+stage = 1
 open_shop_menu = False
 open_craft_menu = False
 open_missions_menu = False
@@ -217,6 +224,7 @@ tutorial_state = '1'
 entity1 = Entity(x, y)
 fish1 = Fish(-50, 350, gold_fish, 1.5)
 red_fish_mission = HealthBar(10, 80, 60)
+gold_fish_mission = HealthBar(10, 180, 60)
 fish_point_color = 'green'
 all_sprite = pg.sprite.Group(entity1, fish1)
 grass_tile1_rect = pg.surface.Surface((50, 50))
@@ -227,37 +235,58 @@ while run:
     clock.tick(60)
     entity1.stay_still()
     keys = pg.key.get_pressed()
-    screen.fill('black')
-    fish_list_1 = font2.render(f"Красная рыба x{red_fish_count}", False, 'purple')
-    fish_list_2 = font2.render(f"Монета x{coin_fish_count}", False, 'purple')
-    fish_list_3 = font2.render(f"Моллюск x{clam_count}", False, 'purple')
-    fish_list_3_1 = font2.render(f"Жемчужина x{pearl_count}", False, 'purple')
-    fish_list_4 = font2.render(f"Золотая Рыбка x{gold_fish_count}", False, 'purple')
+    if stage == 1:
 
-    mission1_text = font2.render(f"Поймайте {mission_red_count}", False, 'white')
+        screen.fill('black')
+        if mission_red_count == 30:
+            red_mission_tier = font.render(f"+", False, 'gray')
+        elif mission_red_count == 25:
+            red_mission_tier = font2.render(f"III", False, 'yellow')
+        elif mission_red_count == 20:
+            red_mission_tier = font2.render(f"II", False, 'yellow')
+        elif mission_red_count == 15:
+            red_mission_tier = font2.render(f"I", False, 'yellow')
 
-    screen.blit(background_mix2, (0, 400))
-    screen.blit(background_mix2, (0, 300))
-    screen.blit(background_mix2, (0, 150))
-    screen.blit(background_mix2, (0, 0))
-    screen.blit(background_mix2, (150, 400))
-    screen.blit(background_mix2, (150, 300))
-    screen.blit(background_mix2, (150, 150))
-    screen.blit(background_mix2, (150, 0))
-    screen.blit(background_mix2, (300, 400))
-    screen.blit(background_mix2, (300, 300))
-    screen.blit(background_mix2, (300, 150))
-    screen.blit(background_mix2, (300, 0))
-    screen.blit(background_mix2, (450, 300))
-    screen.blit(background_mix2, (450, 150))
-    screen.blit(background_mix2, (450, 0))
-    screen.blit(background_mix2, (450, 400))
-    screen.blit(background, (0, 400))
-    screen.blit(background, (150, 400))
-    screen.blit(background, (300, 400))
-    screen.blit(background, (450, 400))
-    screen.blit(water_much_background, (0, 550))
-    screen.blit(water_much_background, (350, 550))
+        if mission_gold_fish_count == 30:
+            gold_fish_mission_tier = font.render(f"+", False, 'gray')
+        elif mission_gold_fish_count == 25:
+            gold_fish_mission_tier = font2.render(f"III", False, 'yellow')
+        elif mission_gold_fish_count == 20:
+            gold_fish_mission_tier = font2.render(f"II", False, 'yellow')
+        elif mission_gold_fish_count == 15:
+            gold_fish_mission_tier = font2.render(f"I", False, 'yellow')
+
+        fish_list_1 = font2.render(f"Красная рыба x{red_fish_count}", False, 'purple')
+        fish_list_2 = font2.render(f"Монета x{coin_fish_count}", False, 'purple')
+        fish_list_3 = font2.render(f"Моллюск x{clam_count}", False, 'purple')
+        fish_list_3_1 = font2.render(f"Жемчужина x{pearl_count}", False, 'purple')
+        fish_list_4 = font2.render(f"Золотая Рыбка x{gold_fish_count}", False, 'purple')
+
+        mission1_text = font2.render(f"Поймайте {mission_red_count}", False, 'white')
+        mission2_text = font2.render(f"Поймайте {mission_gold_fish_count}", False, 'white')
+
+        screen.blit(background_mix2, (0, 400))
+        screen.blit(background_mix2, (0, 300))
+        screen.blit(background_mix2, (0, 150))
+        screen.blit(background_mix2, (0, 0))
+        screen.blit(background_mix2, (150, 400))
+        screen.blit(background_mix2, (150, 300))
+        screen.blit(background_mix2, (150, 150))
+        screen.blit(background_mix2, (150, 0))
+        screen.blit(background_mix2, (300, 400))
+        screen.blit(background_mix2, (300, 300))
+        screen.blit(background_mix2, (300, 150))
+        screen.blit(background_mix2, (300, 0))
+        screen.blit(background_mix2, (450, 300))
+        screen.blit(background_mix2, (450, 150))
+        screen.blit(background_mix2, (450, 0))
+        screen.blit(background_mix2, (450, 400))
+        screen.blit(background, (0, 400))
+        screen.blit(background, (150, 400))
+        screen.blit(background, (300, 400))
+        screen.blit(background, (450, 400))
+        screen.blit(water_much_background, (0, 550))
+        screen.blit(water_much_background, (350, 550))
     if fishing_pole_bought:
         screen.blit(fishing_pole_small, (530, 540))
     if fishing_line_bought:
@@ -275,7 +304,7 @@ while run:
         if not lucky_coin_ring_crafted:
             screen.blit(lucky_coin, (210, 540))
     if lucky_coin_ring_crafted:
-        screen.blit(coin_ring_small, ((265, 540)))
+        screen.blit(coin_ring_small, (265, 540))
     if discount_card_crafted:
         shop_text_fish_bait = font.render(f"8 монет", False, 'white')
         shop_text_loot_magnet = font.render(f"10 монет", False, 'white')
@@ -380,9 +409,13 @@ while run:
             print('Туториал окончен!')
             is_tutorial = False
         if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and open_missions_menu:
-            if ready_red_rect.collidepoint(event.pos):
+            if ready_red_rect.collidepoint(event.pos) and 30 > mission_red_count < total_red_fish_count:
                 mission_red_count += 5
                 red_fish_mission.width -= 25
+        if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and open_missions_menu:
+            if ready_gold_rect.collidepoint(event.pos) and 30 > mission_gold_fish_count < total_gold_fish_count:
+                mission_gold_fish_count += 5
+                gold_fish_mission.width -= 25
         if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and game_over:
             continue_ = True
             game_over = False
@@ -507,7 +540,7 @@ while run:
                         fish1.image = gold_fish
         fish1.rect.y = 320
         fish1.rect.x = -50
-    if entity1.rect.y >= 465:
+    if entity1.rect.y >= 465 and stage == 1:
 
         if fishing_pole_bought and fishing_state:
             screen.blit(fishing_menu, (0, 300))
@@ -557,6 +590,7 @@ while run:
 
                     if fish1.image == gold_fish:
                         gold_fish_count += 1
+                        total_gold_fish_count += 1
                         fish_point_color = 'red'
                         fish_caught_sfx.play()
 
@@ -587,15 +621,16 @@ while run:
 
                 if fish1.image == gold_fish:
                     gold_fish_count += 1
+                    total_gold_fish_count += 1
+                    gold_fish_mission.width += 5
                     fish_caught_sfx.play()
-
                 if fish1.image == lucky_coin:
                     lucky_coin_fished = True
 
     if not fishing_point_rect.colliderect(entity1):
         fishing_state = True
 
-    if shop_rect.colliderect(entity1) and (
+    if shop_rect.colliderect(entity1) and stage == 1 and (
             tutorial_state == '3.2' or tutorial_state == '3.3' or tutorial_state == '5' or tutorial_state == '5.1' or tutorial_state == '5.2'):
         open_shop_menu = True
 
@@ -606,7 +641,7 @@ while run:
             shop_state = 'none'
             shop_sfx_close.play()
 
-    if crafting_bench_rect.colliderect(entity1) and not is_tutorial and pearl_bought:
+    if crafting_bench_rect.colliderect(entity1) and not is_tutorial and pearl_bought and stage == 1:
         open_craft_menu = True
 
     else:
@@ -684,14 +719,29 @@ while run:
         screen.blit(shop_menu, (0, 0))
         screen.blit(mission1_text, (5, 50))
         screen.blit(red_fish_small, (125, 50))
-        if total_red_fish_count < mission_red_count:
+        screen.blit(red_mission_tier, (135, 80))
+        if mission_red_count == 30:
+            screen.blit(mission_text_max, (27, 100))
+        elif total_red_fish_count < mission_red_count:
             screen.blit(mission_text1, (27, 100))
         else:
             screen.blit(mission_text2, (40, 100))
+        screen.blit(mission2_text, (5, 150))
+        screen.blit(gold_fish_small, (125, 150))
+        screen.blit(gold_fish_mission_tier, (135, 180))
         red_fish_mission.update()
         all_sprite.add(red_fish_mission)
+        gold_fish_mission.update()
+        all_sprite.add(gold_fish_mission)
+        if mission_gold_fish_count == 30:
+            screen.blit(mission_text_max, (27, 200))
+        elif total_gold_fish_count < mission_gold_fish_count:
+            screen.blit(mission_text1, (27, 200))
+        else:
+            screen.blit(mission_text2, (40, 200))
     else:
         all_sprite.remove(red_fish_mission)
+        all_sprite.remove(gold_fish_mission)
     if is_tutorial:
         screen.blit(skip_tutorial, (20, 580))
 
@@ -777,7 +827,7 @@ while run:
     else:
         screen.blit(background_Shop, (250, 40))
 
-    if pearl_bought:
+    if pearl_bought and stage == 1:
         screen.blit(crafting_bench_surf, (450, 50))
         screen.blit(crafting_bench, (450, 50))\
 
