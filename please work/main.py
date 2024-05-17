@@ -189,8 +189,20 @@ gold_fish = pg.transform.scale(pg.image.load(f"fishes/gold fish.png"), (50, 50))
 gold_fish_small = pg.transform.scale(pg.image.load(f"fishes/gold fish.png"), (25, 25))
 
 obsidian_fish = pg.transform.scale(pg.image.load(f"fishes/obsidian fish.png"), (50, 50))
+obsidian_fish_small = pg.transform.scale(pg.image.load(f"fishes/obsidian fish.png"), (25, 25))
+
 lava_fish = pg.transform.scale(pg.image.load(f"fishes/lava fish.png"), (50, 50))
+lava_fish_small = pg.transform.scale(pg.image.load(f"fishes/lava fish.png"), (25, 25))
+
 lava_jellyfish = pg.transform.scale(pg.image.load(f"fishes/lava_jellyfish.png"), (50, 50))
+lava_jellyfish_small = pg.transform.scale(pg.image.load(f"fishes/lava_jellyfish.png"), (25, 25))
+
+golem_frame_1 = pg.transform.scale(pg.image.load(f"fight/frame_1.png"), (50, 50))
+golem_frame_2 = pg.transform.scale(pg.image.load(f"fight/frame_2.png"), (50, 50))
+golem_frame_3 = pg.transform.scale(pg.image.load(f"fight/frame_3.png"), (50, 50))
+golem_frame_4 = pg.transform.scale(pg.image.load(f"fight/frame_4.png"), (50, 50))
+golem_frame_5 = pg.transform.scale(pg.image.load(f"fight/frame_5.png"), (50, 50))
+golem_frame_ = [golem_frame_1, golem_frame_2, golem_frame_3, golem_frame_4, golem_frame_5]
 
 shop_rect = pg.Rect((250, 50, 350, 100))
 shop_surf = pg.Surface((100, 20))
@@ -228,8 +240,11 @@ ready_gold_rect = ready_gold_surf.get_rect(topleft=(40, 200))
 ready_clam_rect = pg.Rect((40, 300, 60, 310))
 ready_clam_surf = pg.Surface((70, 20))
 ready_clam_rect = ready_clam_surf.get_rect(topleft=(40, 300))
-x = 300
-y = 600 // 2
+
+boss_fight_rect = pg.Rect((300, 100, 350, 150))
+boss_fight_surf = pg.Surface((50, 50))
+boss_fight_rect = boss_fight_surf.get_rect(topleft=(300, 100))
+
 pg.display.update()
 shop_state = 'none'
 stage = 1
@@ -246,11 +261,13 @@ pearl_bought = True
 lucky_coin_fished = True
 lucky_coin_ring_crafted = True
 fishing_state = True
-is_tutorial = True
+fight_state = False
+is_tutorial = False
 game_over = False
 continue_ = False
 tutorial_state = '1'
-entity1 = Entity(x, y)
+entity1 = Entity(300, 300)
+golem = Entity(300, 100)
 fish1 = Fish(-50, 350, gold_fish, 1.5)
 red_fish_mission = HealthBar(35, 80, 80)
 gold_fish_mission = HealthBar(35, 180, 80)
@@ -294,11 +311,11 @@ while run:
         elif mission_clam_count == 15:
             clam_mission_tier = font2.render(f"I", False, 'yellow')
 
-        fish_list_1 = font2.render(f"Красная рыба x{red_fish_count}", False, 'purple')
-        fish_list_2 = font2.render(f"Монета x{coin_fish_count}", False, 'purple')
-        fish_list_3 = font2.render(f"Моллюск x{clam_count}", False, 'purple')
-        fish_list_3_1 = font2.render(f"Жемчужина x{pearl_count}", False, 'purple')
-        fish_list_4 = font2.render(f"Золотая Рыбка x{gold_fish_count}", False, 'purple')
+        fish_list_1 = font2.render(f"Красная рыба x{red_fish_count}", False, 'red')
+        fish_list_2 = font2.render(f"Монета x{coin_fish_count}", False, (255, 229, 0))
+        fish_list_3 = font2.render(f"Моллюск x{clam_count}", False, (100, 99, 171))
+        fish_list_3_1 = font2.render(f"Жемчужина x{pearl_count}", False, (250, 246, 207))
+        fish_list_4 = font2.render(f"Золотая Рыбка x{gold_fish_count}", False, 'yellow')
         if mission_red_count == 30:
             mission1_text = font2.render(f"Поймайте 25", False, 'white')
         else:
@@ -341,42 +358,90 @@ while run:
             entity1.rect.x = 0
         if entity1.rect.x > 560:
             entity1.rect.x = 560
-    elif stage == 2:
+    elif stage == 2 or stage == 3:
+        if not stage == 3:
+            if entity1.rect.y >= 495:
+                entity1.rect.y = 495
+            if entity1.rect.y < 0:
+                entity1.rect.y = 550
+                stage = 3
+            if entity1.rect.x < 0:
+                entity1.rect.x = 0
+            if entity1.rect.x > 560:
+                entity1.rect.x = 10
+                stage = 1
+        else:
+            if entity1.rect.y >= 560 and stage == 3:
+                stage = 2
+                entity1.rect.y = 0
+            if entity1.rect.y < 0:
+                entity1.rect.y = 0
+            if entity1.rect.x < 0:
+                entity1.rect.x = 0
+            if entity1.rect.x > 560:
+                entity1.rect.x = 560
+        if stage == 2:
+            lava_fish_text = font2.render(f"Лавовая рыба x{lava_fish_count}", False, (245, 195, 95))
+            obsidian_fish_text = font2.render(f"Обсидиановая рыба x{obsidian_fish_count}", False, (38, 18, 92))
+            lava_jellyfish_text = font2.render(f"Моллюск x{lava_jellyfish_count}", False, (122, 9, 77))
 
-        lava_fish_text = font2.render(f"Лавовая рыба x{lava_fish_count}", False, 'purple')
-        obsidian_fish_text = font2.render(f"Обсидиановая рыба x{obsidian_fish_count}", False, 'purple')
-        lava_jellyfish_count = font2.render(f"Моллюск x{clam_count}", False, 'purple') .....
+            screen.blit(volcano_left, (0, 300))
+            screen.blit(volcano_left, (0, 150))
+            screen.blit(volcano_left, (0, 0))
 
-        screen.blit(volcano_left, (0, 300))
-        screen.blit(volcano_left, (0, 150))
-        screen.blit(volcano_upside, (0, 0))
+            screen.blit(volcano_mix, (150, 300))
+            screen.blit(volcano_mix, (150, 150))
+            screen.blit(volcano_mix, (150, 0))
 
-        screen.blit(volcano_mix, (150, 300))
-        screen.blit(volcano_mix, (150, 150))
-        screen.blit(volcano_up, (150, 0))
+            screen.blit(volcano_mix, (300, 300))
+            screen.blit(volcano_mix, (300, 150))
+            screen.blit(volcano_mix, (300, 0))
+            screen.blit(volcano_right, (450, 300))
+            screen.blit(volcano_right, (450, 150))
+            screen.blit(volcano_right, (450, 0))
 
-        screen.blit(volcano_mix, (300, 300))
-        screen.blit(volcano_mix, (300, 150))
-        screen.blit(volcano_up, (300, 0))
-        screen.blit(volcano_right, (450, 300))
-        screen.blit(volcano_right, (450, 150))
-        screen.blit(volcano_upright, (450, 0))
+            screen.blit(volcano_downleft, (0, 400))
+            screen.blit(volcano_down, (150, 400))
+            screen.blit(volcano_down, (300, 400))
+            screen.blit(volcano_downright, (450, 400))
 
-        screen.blit(volcano_downleft, (0, 400))
-        screen.blit(volcano_down, (150, 400))
-        screen.blit(volcano_down, (300, 400))
-        screen.blit(volcano_downright, (450, 400))
+            screen.blit(lava_much_background, (0, 550))
+            screen.blit(lava_much_background, (350, 550))
 
-        screen.blit(lava_much_background, (0, 550))
-        screen.blit(lava_much_background, (350, 550))
-        if entity1.rect.y >= 495:
-            entity1.rect.y = 495
-        if entity1.rect.y < 0:
-            entity1.rect.y = 0
-        if entity1.rect.x < 0:
-            entity1.rect.x = 0
-        if entity1.rect.x > 560:
-            entity1.rect.x = 560
+        elif stage == 3:
+
+            screen.blit(volcano_right, (450, 15))
+
+            screen.blit(volcano_left, (0, 300))
+            screen.blit(volcano_left, (0, 150))
+            screen.blit(volcano_upside, (0, 0))
+
+            screen.blit(volcano_mix, (150, 300))
+            screen.blit(volcano_mix, (150, 150))
+            screen.blit(volcano_up, (150, 0))
+
+            screen.blit(volcano_mix, (300, 300))
+            screen.blit(volcano_mix, (300, 150))
+            screen.blit(volcano_up, (300, 0))
+            screen.blit(volcano_right, (450, 310))
+            screen.blit(volcano_right, (450, 160))
+            screen.blit(volcano_upright, (450, 0))
+
+            screen.blit(volcano_left, (0, 450))
+            screen.blit(volcano_mix, (150, 450))
+            screen.blit(volcano_mix, (300, 450))
+            screen.blit(volcano_right, (450, 450))
+
+            frame_duration_golem = 200
+            frame_index_golem = (current_time // frame_duration_golem) % 5
+            golem.image = golem_frame_[frame_index_golem]
+            if not fight_state and stage == 3:
+                all_sprite.add(golem)
+            else:
+                all_sprite.remove(golem)
+            if entity1.rect.colliderect(boss_fight_rect) and not fight_state:
+                fight_state = True
+
     if fishing_pole_bought:
         screen.blit(fishing_pole_small, (530, 540))
     if fishing_line_bought:
@@ -502,14 +567,17 @@ while run:
             if ready_red_rect.collidepoint(event.pos) and 30 > mission_red_count <= total_red_fish_count:
                 mission_red_count += 5
                 red_fish_mission.width -= 25
+                shop_sfx.play()
         if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and open_missions_menu:
             if ready_gold_rect.collidepoint(event.pos) and 30 > mission_gold_fish_count <= total_gold_fish_count:
                 mission_gold_fish_count += 5
                 gold_fish_mission.width -= 25
+                shop_sfx.play()
         if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and open_missions_menu:
             if ready_clam_rect.collidepoint(event.pos) and 30 > mission_clam_count <= total_clam_count:
                 mission_clam_count += 5
                 clam_mission.width -= 25
+                shop_sfx.play()
         if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and game_over:
             continue_ = True
             game_over = False
@@ -992,6 +1060,14 @@ while run:
                 screen.blit(fish_list_3_1, (400, 190))
                 screen.blit(clam_pearl_small, (370, 190))
         elif stage == 2:
+            screen.blit(lava_fish_text, (350, 130))
+            screen.blit(lava_fish_small, (320, 120))
+
+            screen.blit(obsidian_fish_text, (350, 150))
+            screen.blit(obsidian_fish_small, (320, 145))
+
+            screen.blit(lava_jellyfish_text, (350, 170))
+            screen.blit(lava_jellyfish_small, (320, 168))
 
     if lucky_coin_ring_crafted:
         if not continue_:
@@ -1012,10 +1088,11 @@ while run:
         if entity1.rect.x <= 0:
             stage = 2
             entity1.rect.x = 550
-    if stage == 2:
-        if entity1.rect.x > 550:
-            stage = 1
-            entity1.rect.x = 5
+
+        if stage == 2:
+            if entity1.rect.x > 550:
+                stage = 1
+                entity1.rect.x = 5
 
     pg.display.update()
 pg.quit()
