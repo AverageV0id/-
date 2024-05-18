@@ -275,6 +275,7 @@ clam_mission = HealthBar(35, 280, 80)
 fish_point_color = 'green'
 all_sprite = pg.sprite.Group(entity1, fish1)
 grass_tile1_rect = pg.surface.Surface((50, 50))
+
 while run:
     mouse_x, mouse_y = pg.mouse.get_pos()
     mouse_rect = pg.Surface((5, 5))
