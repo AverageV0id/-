@@ -1,9 +1,10 @@
 import pygame as pg
 import random
+import time
 from entity import Entity
 from fish import Fish
 from progress_bar import HealthBar
-
+from player import Player
 pg.init()
 pg.font.init()
 pg.mixer.init()
@@ -20,6 +21,10 @@ total_clam_count = 25
 clam_count = 1
 pearl_count = 1
 gold_fish_count = 0
+health_count = 1
+health_cost = 15
+resistance_cost = 20
+resistance_count = 1
 
 mission_red_count = 15
 mission_gold_fish_count = 15
@@ -51,6 +56,17 @@ work_bench_ring_text2 = font.render(f"5 монет", False, 'white')
 shop_text_red_fish = font.render(f"Продать 1", False, 'white')
 font2 = pg.font.SysFont("None", 30)
 
+
+potion_text = font2.render(f"x1 Зелье (30 Монет)", False, 'white')
+jelly_sword_text = font2.render(f"Улучшить", False, 'white')
+
+obsidian_sword_text_name = font2.render(f"Обсидиановый меч: ", False, 'white')
+obsidian_sword_text_1 = font2.render(f"x10 ", False, 'white')
+obsidian_sword_text_2 = font2.render(f"x50 ", False, 'white')
+obsidian_sword_text_3 = font2.render(f"x15 ", False, 'white')
+
+volcano_text = font2.render(f"``ВУЛКАН``", False, 'orange')
+
 mission_text1 = font2.render(f"Не готово", False, 'white')
 mission_text2 = font2.render(f"Готово", False, 'white')
 mission_text_max = font2.render(f"Макс.", False, 'white')
@@ -59,6 +75,10 @@ fish_bait_text = font2.render(f"Рыба двигается быстрее", Fal
 fish_pole_text = font2.render(f"Позволяет рыбачить", False, 'white')
 fish_line_text = font2.render(f"Рыба больше не уплывает", False, 'white')
 loot_magnet_text = font2.render(f"Притягвает редких рыб", False, 'white')
+
+
+potion_desc_text = font2.render(f"Даёт 1 Зелье", False, 'white')
+obsidian_sword_desc_text = font2.render(f"Увеличивает урон", False, 'white')
 
 discount_card_text = font2.render(f"Всё в магазине 50% дешевле", False, 'white')
 ring_text = font2.render(f"Рыбы стали в 5 раз прибыльнее", False, 'white')
@@ -197,12 +217,14 @@ lava_fish_small = pg.transform.scale(pg.image.load(f"fishes/lava fish.png"), (25
 lava_jellyfish = pg.transform.scale(pg.image.load(f"fishes/lava_jellyfish.png"), (50, 50))
 lava_jellyfish_small = pg.transform.scale(pg.image.load(f"fishes/lava_jellyfish.png"), (25, 25))
 
-golem_frame_1 = pg.transform.scale(pg.image.load(f"fight/frame_1.png"), (50, 50))
-golem_frame_2 = pg.transform.scale(pg.image.load(f"fight/frame_2.png"), (50, 50))
-golem_frame_3 = pg.transform.scale(pg.image.load(f"fight/frame_3.png"), (50, 50))
-golem_frame_4 = pg.transform.scale(pg.image.load(f"fight/frame_4.png"), (50, 50))
-golem_frame_5 = pg.transform.scale(pg.image.load(f"fight/frame_5.png"), (50, 50))
-golem_frame_ = [golem_frame_1, golem_frame_2, golem_frame_3, golem_frame_4, golem_frame_5]
+volcano_sword = pg.transform.scale(pg.image.load(f"Volcano.png"), (50, 50))
+resistense = pg.transform.scale(pg.image.load(f"resistense.png"), (50, 50))
+player_heart = pg.transform.scale(pg.image.load(f"PlayerHeart.png"), (50, 50))
+player_health_max = pg.transform.scale(pg.image.load(f"PlayerHeart2.png"), (50, 50))
+obsidian_sword = pg.transform.scale(pg.image.load(f"obsidian_sword.png"), (50, 50))
+jelly_sword = pg.transform.scale(pg.image.load(f"jelly_sword.png"), (50, 50))
+potion = pg.transform.scale(pg.image.load(f"15px-Healing_Potion.png"), (30, 50))
+hell_shop = pg.transform.scale(pg.image.load(f"Skeleton_Merchant.png"), (50, 50))
 
 shop_rect = pg.Rect((250, 50, 350, 100))
 shop_surf = pg.Surface((100, 20))
@@ -245,9 +267,14 @@ boss_fight_rect = pg.Rect((300, 100, 350, 150))
 boss_fight_surf = pg.Surface((50, 50))
 boss_fight_rect = boss_fight_surf.get_rect(topleft=(300, 100))
 
+hell_shop_rect = pg.Rect((400, 50, 450, 100))
+hell_shop_surf = pg.Surface((50, 50))
+hell_shop_rect = hell_shop_surf.get_rect(topleft=(400, 50))
+
 pg.display.update()
 shop_state = 'none'
-stage = 1
+stage = 2
+enemy_count = 1
 open_shop_menu = False
 open_craft_menu = False
 open_missions_menu = False
@@ -268,6 +295,8 @@ continue_ = False
 tutorial_state = '1'
 entity1 = Entity(300, 300)
 golem = Entity(300, 100)
+main_hero = Player('Кот', 100, 0, 'None')
+golem_fight = Player('Страж Вулкана', 500, 10, 'None')
 fish1 = Fish(-50, 350, gold_fish, 1.5)
 red_fish_mission = HealthBar(35, 80, 80)
 gold_fish_mission = HealthBar(35, 180, 80)
@@ -281,7 +310,7 @@ while run:
     mouse_rect = pg.Surface((5, 5))
     mouse_rect = mouse_rect.get_rect(topleft=(mouse_x, mouse_y))
     clock.tick(60)
-    entity1.stay_still()
+    entity1.stay_still_player()
     keys = pg.key.get_pressed()
     screen.fill('black')
     if stage == 1:
@@ -382,9 +411,14 @@ while run:
             if entity1.rect.x > 560:
                 entity1.rect.x = 560
         if stage == 2:
+            health_text = font2.render(f"+Здоровье ({health_count})", False, 'white')
             lava_fish_text = font2.render(f"Лавовая рыба x{lava_fish_count}", False, (245, 195, 95))
             obsidian_fish_text = font2.render(f"Обсидиановая рыба x{obsidian_fish_count}", False, (38, 18, 92))
             lava_jellyfish_text = font2.render(f"Моллюск x{lava_jellyfish_count}", False, (122, 9, 77))
+            resistence_text = font2.render(f"+Блок ({resistance_count})", False, 'white')
+
+            health_desc_text = font2.render(f"Увеличивает Здоровье ({health_cost} Монет)", False, 'white')
+            resistance_desc_text = font2.render(f"Увеличивает Блок ({resistance_cost} Монет)", False, 'white')
 
             screen.blit(volcano_left, (0, 300))
             screen.blit(volcano_left, (0, 150))
@@ -400,6 +434,7 @@ while run:
             screen.blit(volcano_right, (450, 300))
             screen.blit(volcano_right, (450, 150))
             screen.blit(volcano_right, (450, 0))
+            screen.blit(hell_shop, (400, 50))
 
             screen.blit(volcano_downleft, (0, 400))
             screen.blit(volcano_down, (150, 400))
@@ -408,6 +443,32 @@ while run:
 
             screen.blit(lava_much_background, (0, 550))
             screen.blit(lava_much_background, (350, 550))
+
+            if entity1.rect.colliderect(hell_shop_rect):
+                screen.blit(shop_menu, (0, 0))
+                screen.blit(player_heart, (50, 50))
+                screen.blit(health_text, (20, 100))
+                screen.blit(resistense, (50, 150))
+                screen.blit(resistence_text, (40, 200))
+                screen.blit(potion, (60, 250))
+                screen.blit(potion_text, (40, 300))
+                screen.blit(obsidian_sword, (60, 420))
+                screen.blit(obsidian_sword_text_name, (10, 470))
+                screen.blit(obsidian_sword_text_1, (10, 500))
+                screen.blit(obsidian_fish_small, (50, 500))
+                screen.blit(obsidian_sword_text_2, (10, 530))
+                screen.blit(coin_fish_small, (50, 528))
+                screen.blit(obsidian_sword_text_3, (10, 560))
+                screen.blit(clam_pearl_small, (50, 555))
+                if mouse_rect.colliderect(fishing_pole_rect):
+                    screen.blit(health_desc_text, (110, 60))
+                if mouse_rect.colliderect(fish_line_shop_rect):
+                    screen.blit(potion_desc_text, (110, 260))
+                elif mouse_rect.colliderect(red_fish_shop_rect):
+                    screen.blit(resistance_desc_text, (110, 160))
+                elif mouse_rect.colliderect(fish_bait_shop_rect):
+                    screen.blit(obsidian_sword_desc_text, (110, 450))
+
 
         elif stage == 3:
 
@@ -435,13 +496,27 @@ while run:
 
             frame_duration_golem = 200
             frame_index_golem = (current_time // frame_duration_golem) % 5
-            golem.image = golem_frame_[frame_index_golem]
-            if not fight_state and stage == 3:
-                all_sprite.add(golem)
-            else:
-                all_sprite.remove(golem)
+
             if entity1.rect.colliderect(boss_fight_rect) and not fight_state:
                 fight_state = True
+
+            if stage == 3 and not fight_state:
+                golem.stay_still_golem()
+                screen.blit(golem.image, (250, 100))
+            else:
+                screen.blit(golem.image, (1000, 1000))
+                if fight_state:
+                    while not main_hero.dead and enemy_count == 1:
+                        if main_hero.dead:
+                            break
+                        main_hero.attack_using_weapon(golem_fight)
+                        golem_fight.сheck_for_death()
+                        if golem_fight.dead:
+                            break
+
+                        golem_fight.pick_move(main_hero)
+                        main_hero.сheck_for_death()
+                        time.sleep(3)
 
     if fishing_pole_bought:
         screen.blit(fishing_pole_small, (530, 540))

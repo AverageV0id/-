@@ -20,6 +20,12 @@ left_ = [left_1, left_2]
 right_1 = pg.image.load(f'right_1.png')
 right_2 = pg.image.load(f'right_2.png')
 right_ = [right_1, right_2]
+golem_frame_1 = pg.transform.scale(pg.image.load(f"fight/frame_1.png"), (50, 50))
+golem_frame_2 = pg.transform.scale(pg.image.load(f"fight/frame_2.png"), (50, 50))
+golem_frame_3 = pg.transform.scale(pg.image.load(f"fight/frame_3.png"), (50, 50))
+golem_frame_4 = pg.transform.scale(pg.image.load(f"fight/frame_4.png"), (50, 50))
+golem_frame_5 = pg.transform.scale(pg.image.load(f"fight/frame_5.png"), (50, 50))
+golem_frame_ = [golem_frame_1, golem_frame_2, golem_frame_3, golem_frame_4, golem_frame_5]
 clock = pg.time.Clock()
 clock.tick(60)
 
@@ -36,13 +42,21 @@ class Entity(pg.sprite.Sprite):
         self.rect.y += self.vector_y
         self.rect.x += self.vector_x
 
-    def stay_still(self):
+    def stay_still_player(self):
         self.vector_y = 0
         self.vector_x = 0
         current_time = pg.time.get_ticks()
-        frame_duration = 300
-        frame_index = (current_time // frame_duration) % 2
-        self.image = idle_[frame_index]
+        frame_duration_player = 300
+        frame_index_player = (current_time // frame_duration_player) % 2
+        self.image = idle_[frame_index_player]
+
+    def stay_still_golem(self):
+        self.vector_y = 0
+        self.vector_x = 0
+        current_time = pg.time.get_ticks()
+        frame_duration_golem = 300
+        frame_index_golem = (current_time // frame_duration_golem) % 5
+        self.image = golem_frame_[frame_index_golem]
 
     def move_up(self):
         self.vector_y = -3
