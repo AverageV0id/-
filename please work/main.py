@@ -5,6 +5,7 @@ from entity import Entity
 from fish import Fish
 from progress_bar import HealthBar
 from player import Player
+
 pg.init()
 pg.font.init()
 pg.mixer.init()
@@ -15,26 +16,29 @@ screen = pg.display.set_mode((600, 600))
 coin_fish_count = 0
 red_fish_count = 0
 
-total_red_fish_count = 25
-total_gold_fish_count = 25
-total_clam_count = 25
-clam_count = 1
-pearl_count = 1
+total_red_fish_count = 0
+total_gold_fish_count = 0
+total_clam_count = 0
+clam_count = 0
+pearl_count = 0
 gold_fish_count = 0
 health_count = 1
 health_cost = 15
 resistance_cost = 20
 resistance_count = 1
-
+potion_count = 0
+potion_bought = 0
 mission_red_count = 15
 mission_gold_fish_count = 15
 mission_clam_count = 15
+total_clam_count = 0
 
 lava_fish_count = 0
 obsidian_fish_count = 0
 lava_jellyfish_count = 0
 font3 = pg.font.SysFont("None", 50)
 game_over_text = font3.render(f"Вы прошли игру,", False, 'white')
+game_game_over_text = font3.render(f"Вы прошли игру на 100%", False, 'white')
 game_over_text2 = font3.render(f"Поздравляем!", False, 'white')
 font = pg.font.SysFont("None", 35)
 
@@ -56,16 +60,17 @@ work_bench_ring_text2 = font.render(f"5 монет", False, 'white')
 shop_text_red_fish = font.render(f"Продать 1", False, 'white')
 font2 = pg.font.SysFont("None", 30)
 
-
-potion_text = font2.render(f"x1 Зелье (30 Монет)", False, 'white')
-jelly_sword_text = font2.render(f"Улучшить", False, 'white')
+jelly_sword_text_name = font2.render(f"Улучшить", False, 'white')
+jelly_sword_text1 = font2.render(f"x30", False, 'white')
+jelly_sword_text2 = font2.render(f"x5", False, 'white')
+jelly_sword_text3 = font2.render(f"x20", False, 'white')
 
 obsidian_sword_text_name = font2.render(f"Обсидиановый меч: ", False, 'white')
 obsidian_sword_text_1 = font2.render(f"x10 ", False, 'white')
 obsidian_sword_text_2 = font2.render(f"x50 ", False, 'white')
 obsidian_sword_text_3 = font2.render(f"x15 ", False, 'white')
 
-volcano_text = font2.render(f"``ВУЛКАН``", False, 'orange')
+volcano_text = font2.render(f"ВУЛКАН(Макс.)", False, 'orange')
 
 mission_text1 = font2.render(f"Не готово", False, 'white')
 mission_text2 = font2.render(f"Готово", False, 'white')
@@ -76,8 +81,7 @@ fish_pole_text = font2.render(f"Позволяет рыбачить", False, 'wh
 fish_line_text = font2.render(f"Рыба больше не уплывает", False, 'white')
 loot_magnet_text = font2.render(f"Притягвает редких рыб", False, 'white')
 
-
-potion_desc_text = font2.render(f"Даёт 1 Зелье", False, 'white')
+potion_desc_text = font2.render(f"Даёт Зелье (30 Монет)", False, 'white')
 obsidian_sword_desc_text = font2.render(f"Увеличивает урон", False, 'white')
 
 discount_card_text = font2.render(f"Всё в магазине 50% дешевле", False, 'white')
@@ -271,14 +275,16 @@ hell_shop_rect = pg.Rect((400, 50, 450, 100))
 hell_shop_surf = pg.Surface((50, 50))
 hell_shop_rect = hell_shop_surf.get_rect(topleft=(400, 50))
 
+potion_rect = pg.Rect((0, 200, 100, 250))
+sword_rect = pg.Rect((0, 250, 100, 350))
 pg.display.update()
 shop_state = 'none'
-stage = 2
+stage = 1
 enemy_count = 1
 open_shop_menu = False
 open_craft_menu = False
 open_missions_menu = False
-fishing_pole_bought = False  # remove
+fishing_pole_bought = False
 fishing_line_bought = False
 fish_bait_bought = False
 loot_magnet_bought = False
@@ -286,11 +292,13 @@ discount_card_crafted = False
 ring_crafted = False
 pearl_bought = False
 lucky_coin_fished = False
-lucky_coin_ring_crafted = True
+lucky_coin_ring_crafted = False
 fishing_state = True
 fight_state = False
+lost_battle = False
 is_tutorial = True
 game_over = False
+game_game_over = False
 continue_ = False
 tutorial_state = '1'
 entity1 = Entity(300, 300)
@@ -411,12 +419,18 @@ while run:
             if entity1.rect.x > 560:
                 entity1.rect.x = 560
         if stage == 2:
-            health_text = font2.render(f"+Здоровье ({health_count})", False, 'white')
+            if health_count < 15:
+                health_text = font2.render(f"+Здоровье ({health_count})", False, 'white')
+            else:
+                health_text = font2.render(f"+Здоровье (Макс.)", False, 'yellow')
             lava_fish_text = font2.render(f"Лавовая рыба x{lava_fish_count}", False, (245, 195, 95))
             obsidian_fish_text = font2.render(f"Обсидиановая рыба x{obsidian_fish_count}", False, (38, 18, 92))
             lava_jellyfish_text = font2.render(f"Моллюск x{lava_jellyfish_count}", False, (122, 9, 77))
-            resistence_text = font2.render(f"+Блок ({resistance_count})", False, 'white')
-
+            if resistance_count < 5:
+                resistence_text = font2.render(f"+Блок ({resistance_count})", False, 'white')
+            else:
+                resistence_text = font2.render(f"+Блок (Макс.)", False, 'blue')
+            potion_text = font2.render(f"x1 Зелье ({potion_count})", False, 'white')
             health_desc_text = font2.render(f"Увеличивает Здоровье ({health_cost} Монет)", False, 'white')
             resistance_desc_text = font2.render(f"Увеличивает Блок ({resistance_cost} Монет)", False, 'white')
 
@@ -445,30 +459,49 @@ while run:
             screen.blit(lava_much_background, (350, 550))
 
             if entity1.rect.colliderect(hell_shop_rect):
+                open_shop_menu = True
                 screen.blit(shop_menu, (0, 0))
-                screen.blit(player_heart, (50, 50))
+                if health_count < 15:
+                    screen.blit(player_heart, (50, 50))
+                else:
+                    screen.blit(player_health_max, (50, 50))
                 screen.blit(health_text, (20, 100))
                 screen.blit(resistense, (50, 150))
                 screen.blit(resistence_text, (40, 200))
                 screen.blit(potion, (60, 250))
                 screen.blit(potion_text, (40, 300))
-                screen.blit(obsidian_sword, (60, 420))
-                screen.blit(obsidian_sword_text_name, (10, 470))
-                screen.blit(obsidian_sword_text_1, (10, 500))
-                screen.blit(obsidian_fish_small, (50, 500))
-                screen.blit(obsidian_sword_text_2, (10, 530))
-                screen.blit(coin_fish_small, (50, 528))
-                screen.blit(obsidian_sword_text_3, (10, 560))
-                screen.blit(clam_pearl_small, (50, 555))
+                if main_hero.weapon == "None":
+                    screen.blit(obsidian_sword, (60, 420))
+                    screen.blit(obsidian_sword_text_name, (10, 470))
+                    screen.blit(obsidian_sword_text_1, (10, 500))
+                    screen.blit(obsidian_fish_small, (50, 500))
+                    screen.blit(obsidian_sword_text_2, (10, 530))
+                    screen.blit(coin_fish_small, (50, 528))
+                    screen.blit(obsidian_sword_text_3, (10, 560))
+                    screen.blit(clam_pearl_small, (50, 555))
+                if main_hero.weapon == "obsidian_sword":
+                    screen.blit(jelly_sword, (60, 420))
+                    screen.blit(jelly_sword_text_name, (10, 470))
+                    screen.blit(jelly_sword_text1, (10, 500))
+                    screen.blit(lava_jellyfish_small, (50, 500))
+                    screen.blit(jelly_sword_text2, (10, 530))
+                    screen.blit(clam_pearl_small, (50, 528))
+                if main_hero.weapon == "jelly_fish_sword":
+                    screen.blit(volcano_sword, (60, 420))
+                    screen.blit(jelly_sword_text_name, (10, 470))
+                    screen.blit(jelly_sword_text3, (10, 500))
+                    screen.blit(lava_fish_small, (50, 500))
+                if main_hero.weapon == "Volcano":
+                    screen.blit(volcano_sword, (60, 420))
+                    screen.blit(volcano_text, (5, 470))
                 if mouse_rect.colliderect(fishing_pole_rect):
                     screen.blit(health_desc_text, (110, 60))
-                if mouse_rect.colliderect(fish_line_shop_rect):
+                elif mouse_rect.colliderect(potion_rect):
                     screen.blit(potion_desc_text, (110, 260))
                 elif mouse_rect.colliderect(red_fish_shop_rect):
                     screen.blit(resistance_desc_text, (110, 160))
-                elif mouse_rect.colliderect(fish_bait_shop_rect):
+                elif mouse_rect.colliderect(sword_rect):
                     screen.blit(obsidian_sword_desc_text, (110, 450))
-
 
         elif stage == 3:
 
@@ -497,27 +530,63 @@ while run:
             frame_duration_golem = 200
             frame_index_golem = (current_time // frame_duration_golem) % 5
 
-            if entity1.rect.colliderect(boss_fight_rect) and not fight_state:
+            if entity1.rect.colliderect(
+                    boss_fight_rect) and not fight_state and not golem_fight.hp < 0 and not lost_battle:
+                main_hero.hp = 100 + health_count * 15
+                golem_fight.hp = 500
+                potion_count = potion_bought
                 fight_state = True
+                lost_battle = True
+            if lost_battle:
+                if not entity1.rect.colliderect(boss_fight_rect):
+                    lost_battle = False
 
-            if stage == 3 and not fight_state:
+            if stage == 3 and not fight_state and not golem_fight.hp <= 0:
                 golem.stay_still_golem()
                 screen.blit(golem.image, (250, 100))
-            else:
+            elif golem_fight.hp <= 0:
                 screen.blit(golem.image, (1000, 1000))
-                if fight_state:
-                    while not main_hero.dead and enemy_count == 1:
-                        if main_hero.dead:
-                            break
-                        main_hero.attack_using_weapon(golem_fight)
-                        golem_fight.сheck_for_death()
-                        if golem_fight.dead:
-                            break
+                game_game_over = True
+            if fight_state:
+                '''while not main_hero.dead and enemy_count == 1 and fight_state:
+                    if main_hero.dead:
+                        fight_state = False
+                        enemy_count = 0
+                        break
+                    main_hero.attack_using_weapon(golem_fight)
+                    time.sleep(1)
+                    if golem_fight.сheck_for_death():
+                        fight_state = False
+                        enemy_count = 0
+                        break
 
-                        golem_fight.pick_move(main_hero)
+                    golem_fight.pick_move(main_hero)
+                    main_hero.сheck_for_death()
+                    time.sleep(1)'''
+                while fight_state:
+                    if main_hero.hp < 0:
                         main_hero.сheck_for_death()
-                        time.sleep(3)
+                        fight_state = False
+                        break
+                    if potion_count > 0:
+                        if input(f"Использовать Зелье? (останется {potion_count - 1}) да или нет\n") == 'да':
+                            main_hero.use_potion(potion_count)
+                            potion_count -= 1
+                        else:
+                            pass
+                    else:
+                        print(f"Больше не осталось Зелей Здоровья")
+                    main_hero.attack_using_weapon(golem_fight)
+                    time.sleep(0.01)
+                    if golem_fight.hp < 0:
+                        golem_fight.сheck_for_death()
+                        fight_state = False
+                        break
 
+                    golem_fight.pick_move(main_hero)
+                    time.sleep(0.01)
+    if game_game_over:
+        screen.blit(game_game_over_text, (100, 300))
     if fishing_pole_bought:
         screen.blit(fishing_pole_small, (530, 540))
     if fishing_line_bought:
@@ -546,114 +615,162 @@ while run:
     for event in pg.event.get():
         if event.type == pg.QUIT:
             run = False
-        if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and open_shop_menu:
-            if fishing_pole_rect.collidepoint(event.pos) and not fishing_pole_bought:
-                print('Удочка куплена!')
-                fishing_pole_bought = True
-                shop_sfx.play()
-        if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and open_shop_menu:
-            if fish_line_shop_rect.collidepoint(event.pos) and not fishing_line_bought and coin_fish_count >= 10:
-                print('Улучшенная леска куплена!')
-                fishing_line_bought = True
-                coin_fish_count -= 10
-                shop_sfx.play()
-        if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and open_shop_menu:
-            if discount_card_crafted:
-                if fish_bait_shop_rect.collidepoint(event.pos) and not fish_bait_bought and coin_fish_count >= 8:
-                    print('Приманка куплена!')
-                    fish_bait_bought = True
-                    coin_fish_count -= 8
+        if stage == 1:
+            if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and open_shop_menu:
+                if fishing_pole_rect.collidepoint(event.pos) and not fishing_pole_bought:
+                    print('Удочка куплена!')
+                    fishing_pole_bought = True
                     shop_sfx.play()
-            else:
-                if fish_bait_shop_rect.collidepoint(event.pos) and not fish_bait_bought and coin_fish_count >= 15:
-                    print('Приманка куплена!')
-                    fish_bait_bought = True
-                    coin_fish_count -= 15
-                    shop_sfx.play()
-        if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and open_shop_menu:
-            if discount_card_crafted:
-                if loot_magnet_shop_rect.collidepoint(event.pos) and not loot_magnet_bought and coin_fish_count >= 10:
-                    print('Магнит лута куплена!')
-                    loot_magnet_bought = True
+            if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and open_shop_menu:
+                if fish_line_shop_rect.collidepoint(event.pos) and not fishing_line_bought and coin_fish_count >= 10:
+                    print('Улучшенная леска куплена!')
+                    fishing_line_bought = True
                     coin_fish_count -= 10
                     shop_sfx.play()
-            else:
-                if loot_magnet_shop_rect.collidepoint(event.pos) and not loot_magnet_bought and coin_fish_count >= 20:
-                    print('Магнит лута куплена!')
-                    loot_magnet_bought = True
-                    coin_fish_count -= 20
-                    shop_sfx.play()
-        if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and open_shop_menu:
-            if ring_crafted:
-                if red_fish_shop_rect.collidepoint(event.pos) and not red_fish_count <= 0:
-                    print('Рыба продана!')
-                    red_fish_count -= 1
-                    coin_fish_count += 5
-                    shop_sfx.play()
-            else:
-                if red_fish_shop_rect.collidepoint(event.pos) and not red_fish_count <= 0:
-                    print('Рыба продана!')
-                    red_fish_count -= 1
-                    coin_fish_count += 1
-                    shop_sfx.play()
-        if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and open_shop_menu:
-            if ring_crafted:
-                if pearl_shop_rect.collidepoint(event.pos) and not clam_count <= 0 and not coin_fish_count < 3:
-                    print('Жемчужина куплена!')
-                    pearl_count += 1
-                    pearl_bought = True
-                    clam_count -= 1
-                    coin_fish_count -= 3
-                    shop_sfx.play()
-            else:
-                if pearl_shop_rect.collidepoint(event.pos) and not clam_count <= 0 and not coin_fish_count < 5:
-                    print('Жемчужина куплена!')
-                    pearl_count += 1
-                    pearl_bought = True
-                    clam_count -= 1
+            if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and open_shop_menu:
+                if discount_card_crafted:
+                    if fish_bait_shop_rect.collidepoint(event.pos) and not fish_bait_bought and coin_fish_count >= 8:
+                        print('Приманка куплена!')
+                        fish_bait_bought = True
+                        coin_fish_count -= 8
+                        shop_sfx.play()
+                else:
+                    if fish_bait_shop_rect.collidepoint(event.pos) and not fish_bait_bought and coin_fish_count >= 15:
+                        print('Приманка куплена!')
+                        fish_bait_bought = True
+                        coin_fish_count -= 15
+                        shop_sfx.play()
+            if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and open_shop_menu:
+                if discount_card_crafted:
+                    if loot_magnet_shop_rect.collidepoint(
+                            event.pos) and not loot_magnet_bought and coin_fish_count >= 10:
+                        print('Магнит лута куплена!')
+                        loot_magnet_bought = True
+                        coin_fish_count -= 10
+                        shop_sfx.play()
+                else:
+                    if loot_magnet_shop_rect.collidepoint(
+                            event.pos) and not loot_magnet_bought and coin_fish_count >= 20:
+                        print('Магнит лута куплена!')
+                        loot_magnet_bought = True
+                        coin_fish_count -= 20
+                        shop_sfx.play()
+            if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and open_shop_menu:
+                if ring_crafted:
+                    if red_fish_shop_rect.collidepoint(event.pos) and not red_fish_count <= 0:
+                        print('Рыба продана!')
+                        red_fish_count -= 1
+                        coin_fish_count += 5
+                        shop_sfx.play()
+                else:
+                    if red_fish_shop_rect.collidepoint(event.pos) and not red_fish_count <= 0:
+                        print('Рыба продана!')
+                        red_fish_count -= 1
+                        coin_fish_count += 1
+                        shop_sfx.play()
+            if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and open_shop_menu:
+                if ring_crafted:
+                    if pearl_shop_rect.collidepoint(event.pos) and not clam_count <= 0 and not coin_fish_count < 3:
+                        print('Жемчужина куплена!')
+                        pearl_count += 1
+                        pearl_bought = True
+                        clam_count -= 1
+                        coin_fish_count -= 3
+                        shop_sfx.play()
+                else:
+                    if pearl_shop_rect.collidepoint(event.pos) and not clam_count <= 0 and not coin_fish_count < 5:
+                        print('Жемчужина куплена!')
+                        pearl_count += 1
+                        pearl_bought = True
+                        clam_count -= 1
+                        coin_fish_count -= 5
+                        shop_sfx.play()
+            if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and open_craft_menu:
+                if discount_card_rect.collidepoint(
+                        event.pos) and pearl_count >= 1 and coin_fish_count >= 5 and not discount_card_crafted:
+                    print('Скидочная карта сделана!')
+                    pearl_count -= 1
+                    discount_card_crafted = True
                     coin_fish_count -= 5
                     shop_sfx.play()
-        if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and open_craft_menu:
-            if discount_card_rect.collidepoint(
-                    event.pos) and pearl_count >= 1 and coin_fish_count >= 5 and not discount_card_crafted:
-                print('Скидочная карта сделана!')
-                pearl_count -= 1
-                discount_card_crafted = True
-                coin_fish_count -= 5
-                shop_sfx.play()
-        if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and open_craft_menu:
-            if ring_rect.collidepoint(event.pos) and pearl_count >= 10 and coin_fish_count >= 5 and not ring_crafted:
-                print('Кольцо сделано!')
-                pearl_count -= 10
-                ring_crafted = True
-                coin_fish_count -= 5
-                shop_sfx.play()
-        if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and open_craft_menu:
-            if lucky_coin_ring_rect.collidepoint(
-                    event.pos) and pearl_count >= 50 and gold_fish_count >= 15 and not lucky_coin_ring_crafted:
-                print('Кольцо Всемирной Власти сделано!')
-                pearl_count -= 50
-                lucky_coin_ring_crafted = True
-                gold_fish_count -= 15
-                shop_sfx.play()
-        if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and is_tutorial and tutorial_state == '5.2':
-            print('Туториал окончен!')
-            is_tutorial = False
-        if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and open_missions_menu:
-            if ready_red_rect.collidepoint(event.pos) and 30 > mission_red_count <= total_red_fish_count:
-                mission_red_count += 5
-                red_fish_mission.width -= 25
-                shop_sfx.play()
-        if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and open_missions_menu:
-            if ready_gold_rect.collidepoint(event.pos) and 30 > mission_gold_fish_count <= total_gold_fish_count:
-                mission_gold_fish_count += 5
-                gold_fish_mission.width -= 25
-                shop_sfx.play()
-        if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and open_missions_menu:
-            if ready_clam_rect.collidepoint(event.pos) and 30 > mission_clam_count <= total_clam_count:
-                mission_clam_count += 5
-                clam_mission.width -= 25
-                shop_sfx.play()
+            if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and open_craft_menu:
+                if ring_rect.collidepoint(
+                        event.pos) and pearl_count >= 10 and coin_fish_count >= 5 and not ring_crafted:
+                    print('Кольцо сделано!')
+                    pearl_count -= 10
+                    ring_crafted = True
+                    coin_fish_count -= 5
+                    shop_sfx.play()
+            if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and open_craft_menu:
+                if lucky_coin_ring_rect.collidepoint(
+                        event.pos) and pearl_count >= 50 and gold_fish_count >= 15 and not lucky_coin_ring_crafted:
+                    print('Кольцо Всемирной Власти сделано!')
+                    pearl_count -= 50
+                    lucky_coin_ring_crafted = True
+                    gold_fish_count -= 15
+                    shop_sfx.play()
+            if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and is_tutorial and tutorial_state == '5.2':
+                print('Туториал окончен!')
+                is_tutorial = False
+            if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and open_missions_menu:
+                if ready_red_rect.collidepoint(event.pos) and 30 > mission_red_count <= total_red_fish_count:
+                    mission_red_count += 5
+                    red_fish_mission.width -= 25
+                    shop_sfx.play()
+            if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and open_missions_menu:
+                if ready_gold_rect.collidepoint(event.pos) and 30 > mission_gold_fish_count <= total_gold_fish_count:
+                    mission_gold_fish_count += 5
+                    gold_fish_mission.width -= 25
+                    shop_sfx.play()
+            if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and open_missions_menu:
+                if ready_clam_rect.collidepoint(event.pos) and 30 > mission_clam_count <= total_clam_count:
+                    mission_clam_count += 5
+                    clam_mission.width -= 25
+                    shop_sfx.play()
+        if stage == 2:
+            if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and stage == 2 and open_shop_menu:
+                if fishing_pole_rect.collidepoint(event.pos) and main_hero.hp <= 300 and coin_fish_count >= 15:
+                    main_hero.hp += 15
+                    health_count += 1
+                    shop_sfx.play()
+            if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and stage == 2 and open_shop_menu:
+                if red_fish_shop_rect.collidepoint(event.pos) and resistance_count <= 5 and coin_fish_count >= 20:
+                    main_hero.defense += 5
+                    resistance_count += 1
+                    shop_sfx.play()
+            if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and stage == 2 and open_shop_menu:
+                if potion_rect.collidepoint(event.pos) and coin_fish_count >= 30:
+                    potion_count += 1
+                    potion_bought += 1
+                    coin_fish_count -= 30
+                    shop_sfx.play()
+                    '''            if mouse_rect.colliderect(fishing_pole_rect):
+                        screen.blit(health_desc_text, (110, 60))
+                    elif mouse_rect.colliderect(potion_rect):
+                        screen.blit(potion_desc_text, (110, 260))
+                    elif mouse_rect.colliderect(red_fish_shop_rect):
+                        screen.blit(resistance_desc_text, (110, 160))
+                    elif mouse_rect.colliderect(sword_rect):
+                        screen.blit(obsidian_sword_desc_text, (110, 450))'''
+            if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and stage == 2 and open_shop_menu:
+                if sword_rect.collidepoint(event.pos) and main_hero.weapon == 'None':
+                    if obsidian_fish_count >= 10 and coin_fish_count >= 50 and pearl_count >= 15:
+                        obsidian_fish_count -= 10
+                        coin_fish_count -= 50
+                        pearl_count -= 15
+                        main_hero.weapon = 'obsidian_sword'
+                        shop_sfx.play()
+                if sword_rect.collidepoint(
+                        event.pos) and main_hero.weapon == 'obsidian_sword' and lava_jellyfish_count >= 30 and pearl_count >= 5:
+                    lava_jellyfish_count -= 30
+                    pearl_count -= 5
+                    main_hero.weapon = 'jelly_fish_sword'
+                    shop_sfx.play()
+                if sword_rect.collidepoint(
+                        event.pos) and main_hero.weapon == 'jelly_fish_sword' and lava_fish_count >= 20:
+                    lava_fish_count -= 20
+                    main_hero.weapon = 'Volcano'
+                    shop_sfx.play()
         if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and game_over:
             continue_ = True
             game_over = False
@@ -667,13 +784,13 @@ while run:
         if event.type == pg.USEREVENT:
             fish_point_color = 'green'
 
-    if keys[pg.K_w] and not game_over:
+    if keys[pg.K_w] and not game_over and not game_game_over:
         entity1.move_up()
-    if keys[pg.K_s] and not game_over:
+    if keys[pg.K_s] and not game_over and not game_game_over:
         entity1.move_down()
-    if keys[pg.K_d] and not game_over:
+    if keys[pg.K_d] and not game_over and not game_game_over:
         entity1.move_right()
-    if keys[pg.K_a] and not game_over:
+    if keys[pg.K_a] and not game_over and not game_game_over:
         entity1.move_left()
 
     if fish1.rect.x >= 620:
@@ -836,6 +953,7 @@ while run:
 
                     if fish1.image == clam_1 or fish1.image == clam_2 or fish1.image == clam_3:
                         clam_count += 1
+                        total_clam_count += 1
                         fish_point_color = 'red'
                         fish_caught_sfx.play()
 
@@ -868,6 +986,8 @@ while run:
 
                 if fish1.image == clam_1 or fish1.image == clam_2 or fish1.image == clam_3:
                     clam_count += 1
+                    clam_mission.width += 5
+                    total_clam_count += 1
                     fish_caught_sfx.play()
 
                 if fish1.image == gold_fish:
