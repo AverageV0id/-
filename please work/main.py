@@ -425,7 +425,7 @@ while run:
                 health_text = font2.render(f"+Здоровье (Макс.)", False, 'yellow')
             lava_fish_text = font2.render(f"Лавовая рыба x{lava_fish_count}", False, (245, 195, 95))
             obsidian_fish_text = font2.render(f"Обсидиановая рыба x{obsidian_fish_count}", False, (38, 18, 92))
-            lava_jellyfish_text = font2.render(f"Моллюск x{lava_jellyfish_count}", False, (122, 9, 77))
+            lava_jellyfish_text = font2.render(f"Лавовая медуза x{lava_jellyfish_count}", False, (122, 9, 77))
             if resistance_count < 5:
                 resistence_text = font2.render(f"+Блок ({resistance_count})", False, 'white')
             else:
@@ -548,21 +548,6 @@ while run:
                 screen.blit(golem.image, (1000, 1000))
                 game_game_over = True
             if fight_state:
-                '''while not main_hero.dead and enemy_count == 1 and fight_state:
-                    if main_hero.dead:
-                        fight_state = False
-                        enemy_count = 0
-                        break
-                    main_hero.attack_using_weapon(golem_fight)
-                    time.sleep(1)
-                    if golem_fight.сheck_for_death():
-                        fight_state = False
-                        enemy_count = 0
-                        break
-
-                    golem_fight.pick_move(main_hero)
-                    main_hero.сheck_for_death()
-                    time.sleep(1)'''
                 while fight_state:
                     if main_hero.hp < 0:
                         main_hero.сheck_for_death()
@@ -577,14 +562,14 @@ while run:
                     else:
                         print(f"Больше не осталось Зелей Здоровья")
                     main_hero.attack_using_weapon(golem_fight)
-                    time.sleep(0.01)
+                    time.sleep(0.5)
                     if golem_fight.hp < 0:
                         golem_fight.сheck_for_death()
                         fight_state = False
                         break
 
                     golem_fight.pick_move(main_hero)
-                    time.sleep(0.01)
+                    time.sleep(0.5)
     if game_game_over:
         screen.blit(game_game_over_text, (100, 300))
     if fishing_pole_bought:
@@ -744,14 +729,6 @@ while run:
                     potion_bought += 1
                     coin_fish_count -= 30
                     shop_sfx.play()
-                    '''            if mouse_rect.colliderect(fishing_pole_rect):
-                        screen.blit(health_desc_text, (110, 60))
-                    elif mouse_rect.colliderect(potion_rect):
-                        screen.blit(potion_desc_text, (110, 260))
-                    elif mouse_rect.colliderect(red_fish_shop_rect):
-                        screen.blit(resistance_desc_text, (110, 160))
-                    elif mouse_rect.colliderect(sword_rect):
-                        screen.blit(obsidian_sword_desc_text, (110, 450))'''
             if event.type == pg.MOUSEBUTTONDOWN and event.button == 1 and stage == 2 and open_shop_menu:
                 if sword_rect.collidepoint(event.pos) and main_hero.weapon == 'None':
                     if obsidian_fish_count >= 10 and coin_fish_count >= 50 and pearl_count >= 15:

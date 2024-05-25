@@ -6,7 +6,6 @@ pg.mixer.init()
 
 
 class Player:
-
     def __init__(self, name, health, defense, weapon):
         self.name = name
         self.hp = health
@@ -86,7 +85,7 @@ class Player:
 
     def use_potion(self, item):
         if item < 0:
-            print(f"У {self.name}а не осталось {item.name}")
+            print(f"У {self.name}а не осталось {item.name}\n")
         else:
             self.hp += 30
             print(f"{self.name} использовал Зелье Здоровья\n"
